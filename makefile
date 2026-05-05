@@ -1,6 +1,6 @@
 # Makefile for Major Project 2026-2027
 
-.PHONY: help install run lint format fix clean migrate makemigration seed
+.PHONY: help install run lint format fix clean migrate makemigration seed structure
 
 help:
 	@echo "Available commands:"
@@ -12,6 +12,7 @@ help:
 	@echo "  migrate        - Apply database migrations (alembic)"
 	@echo "  makemigration  - Generate a new migration (requires m='message')"
 	@echo "  seed           - Create the initial super admin"
+	@echo "  structure      - Show folder structure ignoring useless files"
 	@echo "  clean          - Remove temporary files and caches"
 
 install:
@@ -42,3 +43,6 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name ".ruff_cache" -exec rm -rf {} +
 	find . -type d -name ".pytest_cache" -exec rm -rf {} +
+
+structure:
+	@tree -I "__pycache__|.git|.venv|venv|.ruff_cache|.pytest_cache|.mypy_cache|.vscode|.idea|.env|*.pyc|uv.lock"
