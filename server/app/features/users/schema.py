@@ -47,7 +47,3 @@ class TokenPair(BaseModel):
     token_type: str = "bearer"
 
 
-class MessageResponse(BaseModel):
-    """Generic message response."""
-
-    message: str

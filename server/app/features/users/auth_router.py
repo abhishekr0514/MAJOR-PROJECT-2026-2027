@@ -10,7 +10,6 @@ from app.core.security import decode_token
 from app.features.users.dependencies import get_current_active_user
 from app.features.users.models import User
 from app.features.users.schema import (
-    MessageResponse,
     RefreshTokenRequest,
     TokenPair,
     UserCreate,
