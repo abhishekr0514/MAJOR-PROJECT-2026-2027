@@ -30,7 +30,7 @@ async def authenticate_user(
 
 
 async def create_user(repo: UserRepository, data: UserCreate) -> User:
-    """Create a new public user (always a Clinician).
+    """Create a new public user (always a Clinician, no hospital).
 
     Raises ``ValueError`` if the email is already taken.
     """
@@ -54,22 +54,38 @@ async def admin_create_user(
     """Create a user on behalf of an admin actor.
 
     Business rules:
-    - ``SUPER_ADMIN`` can create any role.
-    - ``HOSPITAL_ADMIN`` can only create ``CLINICIAN``s.
-    - Any other role is rejected (should never reach here, but defensive).
+    - ``SUPER_ADMIN`` can create any role, must provide ``hospital_id`` for
+      non-super-admin roles.
+    - ``HOSPITAL_ADMIN`` can only create ``CLINICIAN``s; ``hospital_id`` is
+      automatically inherited from the actor — the request value is ignored.
 
     Raises:
-        ``HTTP 403`` if the actor is not permitted to assign the requested role.
+        ``HTTP 403`` if the actor cannot assign the requested role.
+        ``HTTP 422`` if SUPER_ADMIN omits ``hospital_id`` for a non-super role.
         ``HTTP 409`` if the email is already taken.
     """
     allowed = _CREATABLE_ROLES.get(actor.role, set())
     if data.role not in allowed:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=(
-                f"A {actor.role.value} cannot create a user with role '{data.role.value}'"
-            ),
+            detail=f"A {actor.role.value} cannot create a user with role '{data.role.value}'",
         )
+
+    # Determine the hospital_id for the new user
+    if actor.role == Role.HOSPITAL_ADMIN:
+        # Always inherit from the acting admin — cannot be overridden
+        hospital_id = actor.hospital_id
+    elif data.role == Role.SUPER_ADMIN:
+        # Super admins belong to no hospital
+        hospital_id = None
+    else:
+        # SUPER_ADMIN creating a HOSPITAL_ADMIN or CLINICIAN must specify a hospital
+        if data.hospital_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"hospital_id is required when creating a '{data.role.value}'",
+            )
+        hospital_id = data.hospital_id
 
     if await repo.email_exists(data.email):
         raise HTTPException(
@@ -82,6 +98,7 @@ async def admin_create_user(
         full_name=data.full_name,
         hashed_password=hash_password(data.password),
         role=data.role,
+        hospital_id=hospital_id,
     )
     return await repo.create(user)
 

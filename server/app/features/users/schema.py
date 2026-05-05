@@ -22,15 +22,18 @@ class UserCreate(BaseModel):
 class AdminUserCreate(BaseModel):
     """Payload for ``POST /users/`` (admin-only — role is explicitly chosen).
 
-    Role constraints are enforced in the service layer:
-    - ``SUPER_ADMIN``   → can create any role
-    - ``HOSPITAL_ADMIN`` → can only create ``CLINICIAN``
+    Role constraints enforced in the service layer:
+    - ``SUPER_ADMIN``    → can create any role; must supply ``hospital_id`` for
+                           HOSPITAL_ADMIN and CLINICIAN.
+    - ``HOSPITAL_ADMIN`` → can only create ``CLINICIAN``; ``hospital_id`` is
+                           automatically inherited from the actor.
     """
 
     email: EmailStr
     full_name: str = Field(min_length=1, max_length=120)
     password: str = Field(min_length=8, max_length=128)
     role: Role
+    hospital_id: uuid.UUID | None = None
 
 
 class RefreshTokenRequest(BaseModel):
@@ -50,6 +53,7 @@ class UserResponse(BaseModel):
     full_name: str
     role: str
     is_active: bool
+    hospital_id: uuid.UUID | None
     created_at: datetime
 
     model_config = {"from_attributes": True}

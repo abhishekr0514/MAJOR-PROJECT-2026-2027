@@ -3,8 +3,9 @@ import sys
 
 from app.core.config import settings
 from app.core.database import SessionLocal
+from app.core.models import Hospital, User  # noqa: F401 — registers all models & relationships
 from app.core.security import hash_password
-from app.features.users.models import Role, User
+from app.features.users.models import Role
 from app.features.users.repository import UserRepository
 
 
@@ -16,7 +17,7 @@ async def create_first_super_admin():
         repo = UserRepository(db)
         
         # Check if any super admin exists
-        exists = await repo.get_one_by(role=Role.SUPER_ADMIN)
+        exists = await repo.get_first_by(role=Role.SUPER_ADMIN)
         if exists:
             print(f"Super admin already exists: {exists.email}")
             return

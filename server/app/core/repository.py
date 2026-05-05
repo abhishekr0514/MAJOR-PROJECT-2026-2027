@@ -28,8 +28,21 @@ class BaseRepository[T: Base]:
         return list(result.scalars().all())
 
     async def get_one_by(self, **filters: Any) -> T | None:
-        """Return a single row matching the given column filters, or ``None``."""
+        """Return a single row matching the given column filters, or ``None``.
+
+        Raises ``MultipleResultsFound`` if more than one row matches.
+        Use ``get_first_by`` if duplicates are acceptable.
+        """
         stmt = select(self.model).filter_by(**filters)
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_first_by(self, **filters: Any) -> T | None:
+        """Return the first row matching the given filters, or ``None``.
+
+        Unlike ``get_one_by``, this does not raise if multiple rows exist.
+        """
+        stmt = select(self.model).filter_by(**filters).limit(1)
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 

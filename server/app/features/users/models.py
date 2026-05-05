@@ -1,11 +1,17 @@
+"""User model and role definitions."""
+
 import uuid
 from datetime import datetime
 from enum import Enum
+from typing import TYPE_CHECKING
 
-from sqlalchemy import func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import ForeignKey, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+
+if TYPE_CHECKING:
+    from app.features.hospitals.models import Hospital
 
 
 class Role(str, Enum):
@@ -23,6 +29,15 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column()
     role: Mapped[Role] = mapped_column(default=Role.CLINICIAN)
     is_active: Mapped[bool] = mapped_column(default=True)
+
+    # FK to hospitals — nullable because SUPER_ADMIN has no hospital
+    hospital_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("hospitals.id", ondelete="SET NULL"), nullable=True, default=None
+    )
+    hospital: Mapped["Hospital | None"] = relationship(  # type: ignore[name-defined]
+        back_populates="users"
+    )
+
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), onupdate=func.now()
