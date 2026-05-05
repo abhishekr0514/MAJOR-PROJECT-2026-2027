@@ -3,12 +3,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import get_db
 from app.core.security import decode_token
 from app.features.users.dependencies import get_current_active_user
 from app.features.users.models import User
+from app.features.users.repository import UserRepository, get_user_repository
 from app.features.users.schema import (
     RefreshTokenRequest,
     TokenPair,
@@ -31,10 +30,10 @@ auth_router = APIRouter()
 )
 async def signup(
     body: UserCreate,
-    db: AsyncSession = Depends(get_db),
+    repo: UserRepository = Depends(get_user_repository),
 ):
     try:
-        user = await create_user(db, body)
+        user = await create_user(repo, body)
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -53,9 +52,9 @@ async def signup(
 )
 async def login(
     form: OAuth2PasswordRequestForm = Depends(),
-    db: AsyncSession = Depends(get_db),
+    repo: UserRepository = Depends(get_user_repository),
 ):
-    user = await authenticate_user(db, form.username, form.password)
+    user = await authenticate_user(repo, form.username, form.password)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -80,7 +79,7 @@ async def login(
 )
 async def refresh(
     body: RefreshTokenRequest,
-    db: AsyncSession = Depends(get_db),
+    repo: UserRepository = Depends(get_user_repository),
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -100,10 +99,7 @@ async def refresh(
     if email is None:
         raise credentials_exception
 
-    from sqlalchemy import select
-
-    result = await db.execute(select(User).where(User.email == email))
-    user = result.scalar_one_or_none()
+    user = await repo.get_by_email(email)
     if user is None or not user.is_active:
         raise credentials_exception
 

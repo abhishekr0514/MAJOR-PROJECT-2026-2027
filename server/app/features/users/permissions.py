@@ -19,9 +19,7 @@ class RoleChecker:
     def __init__(self, allowed_roles: list[Role]) -> None:
         self.allowed_roles = allowed_roles
 
-    async def __call__(
-        self, user: User = Depends(get_current_active_user)
-    ) -> User:
+    async def __call__(self, user: User = Depends(get_current_active_user)) -> User:
         if user.role not in self.allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
