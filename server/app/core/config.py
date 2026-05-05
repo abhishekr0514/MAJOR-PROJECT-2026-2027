@@ -12,16 +12,21 @@ class Settings(BaseSettings):
     POSTGRES_DB: str
 
     @property
-    def DATABASE_URI(self):
-        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+    def DATABASE_URI(self) -> str:
+        return (
+            f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        )
 
-    # JWT Configurations
-    JWT_SECRET: str
-    JWT_ALGORITHM: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    # JWT / Auth Configurations
+    AUTH_SECRET: str
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-    APP_NAME: str
-    APP_VERSION: str
+    # Application Metadata
+    APP_NAME: str = "Federated Heart Diagnosis"
+    APP_VERSION: str = "1.0.0"
 
 
 settings = Settings()
