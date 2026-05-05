@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import Base, engine
 from app.features.users.auth_router import auth_router
+from app.features.users.router import user_router
 
 
 @asynccontextmanager
@@ -31,6 +32,7 @@ def get_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+    app.include_router(user_router, prefix="/users", tags=["User Management"])
     return app
 
 
