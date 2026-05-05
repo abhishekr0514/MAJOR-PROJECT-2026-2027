@@ -1,21 +1,33 @@
 # Makefile for Major Project 2026-2027
 
-.PHONY: help install run lint format fix clean
+.PHONY: help install run lint format fix clean migrate makemigration seed
 
 help:
 	@echo "Available commands:"
-	@echo "  install    - Install dependencies using uv"
-	@echo "  run        - Start the FastAPI server"
-	@echo "  lint       - Run Ruff for linting"
-	@echo "  format     - Run Ruff for formatting"
-	@echo "  fix        - Run Ruff to fix linting issues"
-	@echo "  clean      - Remove temporary files and caches"
+	@echo "  install        - Install dependencies using uv"
+	@echo "  run            - Start the FastAPI server"
+	@echo "  lint           - Run Ruff for linting"
+	@echo "  format         - Run Ruff for formatting"
+	@echo "  fix            - Run Ruff to fix linting issues"
+	@echo "  migrate        - Apply database migrations (alembic)"
+	@echo "  makemigration  - Generate a new migration (requires m='message')"
+	@echo "  seed           - Create the initial super admin"
+	@echo "  clean          - Remove temporary files and caches"
 
 install:
 	cd server && uv sync
 
 run:
 	cd server && uv run python main.py
+
+migrate:
+	cd server && uv run alembic upgrade head
+
+makemigration:
+	cd server && uv run alembic revision --autogenerate -m "$(m)"
+
+seed:
+	cd server && uv run python seed.py
 
 lint:
 	cd server && uv run ruff check .
