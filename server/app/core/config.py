@@ -28,5 +28,9 @@ class Settings(BaseSettings):
     APP_NAME: str = "Federated Heart Diagnosis"
     APP_VERSION: str = "1.0.0"
 
+    # Initial Super Admin (used by seed.py)
+    FIRST_SUPER_ADMIN_EMAIL: str
+    FIRST_SUPER_ADMIN_PASSWORD: str
+
 
 settings = Settings()
