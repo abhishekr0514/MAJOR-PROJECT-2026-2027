@@ -12,10 +12,10 @@ from app.features.users.repository import UserRepository
 async def create_first_super_admin():
     """Create the first super admin user if it doesn't exist."""
     print("Checking for initial super admin...")
-    
+
     async with SessionLocal() as db:
         repo = UserRepository(db)
-        
+
         # Check if any super admin exists
         exists = await repo.get_first_by(role=Role.SUPER_ADMIN)
         if exists:
@@ -23,7 +23,7 @@ async def create_first_super_admin():
             return
 
         print(f"Creating super admin: {settings.FIRST_SUPER_ADMIN_EMAIL}")
-        
+
         admin = User(
             email=settings.FIRST_SUPER_ADMIN_EMAIL,
             full_name="System Administrator",
@@ -31,7 +31,7 @@ async def create_first_super_admin():
             role=Role.SUPER_ADMIN,
             is_active=True,
         )
-        
+
         try:
             await repo.create(admin)
             print("Successfully created the first super admin!")

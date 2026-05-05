@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.core.database import engine
 from app.features.users.auth_router import auth_router
 from app.features.users.router import user_router
+from app.features.hospitals.router import hospital_router
 
 
 @asynccontextmanager
@@ -35,6 +36,9 @@ def get_app() -> FastAPI:
     )
     app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
     app.include_router(user_router, prefix="/users", tags=["User Management"])
+    app.include_router(
+        hospital_router, prefix="/hospitals", tags=["Hospital Management"]
+    )
     return app
 
 

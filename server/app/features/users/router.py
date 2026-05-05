@@ -2,7 +2,6 @@
 
 from fastapi import APIRouter, Depends, status
 
-from app.features.users.dependencies import get_current_active_user
 from app.features.users.models import Role, User
 from app.features.users.permissions import RoleChecker
 from app.features.users.repository import UserRepository, get_user_repository
