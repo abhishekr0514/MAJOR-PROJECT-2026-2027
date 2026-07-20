@@ -3,7 +3,7 @@
 ## Project Overview
 **MedShield FL** is a privacy-preserving, explainable, multimodal federated learning framework for heart disease diagnosis. It enables hospital institutions to collaboratively train diagnostic models without exposing sensitive raw patient data, clinical text, or ECG readings.
 
-- **Group ID**: 50 (JSSATEB)
+- **Group ID**: 50
 - **Domain**: Federated Learning, Healthcare AI, Privacy-Preserving ML, Multimodal Fusion, Explainable AI (XAI).
 
 ---
