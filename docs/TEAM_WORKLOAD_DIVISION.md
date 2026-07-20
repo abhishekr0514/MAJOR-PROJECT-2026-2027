@@ -117,3 +117,17 @@ git checkout -b feature/xai-react-testing
    * Member 1 works primarily in `server/`
    * Member 2 works primarily in `client/privacy/` and `client/ml_models/`
    * Member 3 works primarily in `client/explainability/`, `frontend/`, and `client/data/`
+
+---
+
+## ⚖️ Workload Balance & Fairness Justification
+
+This division is balanced (approx. 33% / 33% / 34%) across code volume, algorithmic complexity, and viva presentation weight:
+
+| Dimension | Member 1 (Backend & DB) | Member 2 (Privacy & ML) | Member 3 (XAI, UI & Testing) |
+| :--- | :--- | :--- | :--- |
+| **Technical Stack** | FastAPI, Async SQLAlchemy, Alembic, JWT, Flower Server | PyTorch, spaCy NLP, HuggingFace BERT, Flower Client | React.js, DiCE, DoWhy Causal AI, Pytest, Recharts |
+| **Lines of Code (approx.)** | ~33% of codebase | ~33% of codebase | ~34% of codebase |
+| **Algorithmic Complexity** | Moderate-High (Security, Async DB, `FedAvg` aggregation) | High (Deep Learning architectures & NLP entity extraction) | High (Counterfactual search, Causal graphs, UI state) |
+| **VTU Viva Impressiveness** | **Very Strong**: Demonstrates enterprise API & DB design | **Very Strong**: Demonstrates state-of-the-art AI & privacy engineering | **Very Strong**: Demonstrates Explainable AI (XAI) & clinician UI |
+
