@@ -20,6 +20,16 @@ This document serves as the master index and execution blueprint for building **
 
 ---
 
+## 👥 Individual Team Member AI Agent Execution Guides
+
+For step-by-step instructions, blueprint references, and AI pair-programming prompt templates for each team member:
+
+* 👤 **Member 1 Guide**: [`docs/MEMBER_1_EXECUTION_GUIDE.md`](MEMBER_1_EXECUTION_GUIDE.md) *(Systems Architecture, Database & Distributed FL Lead)*
+* 👤 **Member 2 Guide**: [`docs/MEMBER_2_EXECUTION_GUIDE.md`](MEMBER_2_EXECUTION_GUIDE.md) *(Pure Machine Learning & Explainable AI Lead)*
+* 👤 **Member 3 Guide**: [`docs/MEMBER_3_EXECUTION_GUIDE.md`](MEMBER_3_EXECUTION_GUIDE.md) *(Privacy Engine, Datasets & Frontend UI Lead)*
+
+---
+
 ## 🏗️ Detailed Execution Checklist
 
 ### Phase 0: System Infrastructure & AI Governance `[COMPLETED]`

@@ -34,7 +34,8 @@ flowchart TD
 ## 👤 Member 1: Systems Architecture, Database & Distributed FL Lead
 
 ### **Assigned Domain**: Server Core, Database Migrations, REST API & Federated Learning Orchestration
-* **Assigned Blueprints**:
+* **Assigned Blueprints & Execution Guide**:
+  * 📘 **Step-by-Step AI Execution Guide**: [`docs/MEMBER_1_EXECUTION_GUIDE.md`](MEMBER_1_EXECUTION_GUIDE.md)
   * [`docs/01_DATABASE_SCHEMA_AND_MODELS.md`](01_DATABASE_SCHEMA_AND_MODELS.md)
   * [`docs/06_SERVER_API_SPEC.md`](06_SERVER_API_SPEC.md)
   * [`docs/04_FEDERATED_LEARNING_FLWR.md`](04_FEDERATED_LEARNING_FLWR.md) *(Server Aggregator & Client Runner)*
@@ -56,7 +57,8 @@ flowchart TD
 ## 👤 Member 2: Machine Learning & Explainable AI (XAI) Lead
 
 ### **Assigned Domain**: PyTorch Multimodal Models, Neural Fusion & Explainable Causal AI
-* **Assigned Blueprints**:
+* **Assigned Blueprints & Execution Guide**:
+  * 📘 **Step-by-Step AI Execution Guide**: [`docs/MEMBER_2_EXECUTION_GUIDE.md`](MEMBER_2_EXECUTION_GUIDE.md)
   * [`docs/03_ML_MULTIMODAL_PIPELINE.md`](03_ML_MULTIMODAL_PIPELINE.md)
   * [`docs/05_EXPLAINABILITY_AND_CAUSAL_AI.md`](05_EXPLAINABILITY_AND_CAUSAL_AI.md)
 
@@ -78,7 +80,8 @@ flowchart TD
 ## 👤 Member 3: Privacy Engine, Data Engineering & Frontend UI Lead
 
 ### **Assigned Domain**: Privacy NER Anonymizer, Medical Datasets, React UI Dashboard & Pytest
-* **Assigned Blueprints**:
+* **Assigned Blueprints & Execution Guide**:
+  * 📘 **Step-by-Step AI Execution Guide**: [`docs/MEMBER_3_EXECUTION_GUIDE.md`](MEMBER_3_EXECUTION_GUIDE.md)
   * [`docs/02_PRIVACY_NER_MODULE.md`](02_PRIVACY_NER_MODULE.md)
   * [`docs/07_FRONTEND_REACT_DASHBOARD.md`](07_FRONTEND_REACT_DASHBOARD.md)
   * [`docs/08_TESTING_AND_DATASETS.md`](08_TESTING_AND_DATASETS.md)
