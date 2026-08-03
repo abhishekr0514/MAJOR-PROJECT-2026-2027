@@ -181,7 +181,7 @@ def main() -> None:
     print(
         f"[Client Node {args.hospital_id}] Connecting to FL server at {args.server}..."
     )
-    fl.client.start_numpy_client(server_address=args.server, client=client)
+    fl.client.start_client(server_address=args.server, client=client.to_client())
 
 
 if __name__ == "__main__":
