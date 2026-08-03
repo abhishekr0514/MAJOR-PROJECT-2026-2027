@@ -1,22 +1,27 @@
 # Makefile for Major Project 2026-2027
 
-.PHONY: help install run lint format fix clean migrate makemigration seed structure
+.PHONY: help install run client-install lint format fix clean migrate makemigration seed structure test
 
 help:
 	@echo "Available commands:"
-	@echo "  install        - Install dependencies using uv"
+	@echo "  install        - Install backend dependencies using uv"
+	@echo "  client-install - Install client ML/FL dependencies using uv"
 	@echo "  run            - Start the FastAPI server"
-	@echo "  lint           - Run Ruff for linting"
-	@echo "  format         - Run Ruff for formatting"
-	@echo "  fix            - Run Ruff to fix linting issues"
+	@echo "  lint           - Run Ruff for linting across server & client"
+	@echo "  format         - Run Ruff for formatting across server & client"
+	@echo "  fix            - Run Ruff to fix linting issues across server & client"
+	@echo "  test           - Run pytest unit and integration tests"
 	@echo "  migrate        - Apply database migrations (alembic)"
 	@echo "  makemigration  - Generate a new migration (requires m='message')"
-	@echo "  seed           - Create the initial super admin"
-	@echo "  structure      - Show folder structure ignoring useless files"
+	@echo "  seed           - Create initial super admin and seed data"
+	@echo "  structure      - Show folder structure"
 	@echo "  clean          - Remove temporary files and caches"
 
 install:
 	cd server && uv sync
+
+client-install:
+	cd client && uv sync
 
 run:
 	cd server && uv run python main.py
@@ -30,14 +35,17 @@ makemigration:
 seed:
 	cd server && uv run python seed.py
 
+test:
+	cd server && uv run pytest tests/ -v
+
 lint:
-	cd server && uv run ruff check .
+	uv run ruff check .
 
 format:
-	cd server && uv run ruff format .
+	uv run ruff format .
 
 fix:
-	cd server && uv run ruff check --fix .
+	uv run ruff check --fix .
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
