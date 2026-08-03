@@ -5,9 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.database import engine
+from app.features.federation.router import federation_router
+from app.features.hospitals.router import hospital_router
+from app.features.prediction.router import prediction_router
 from app.features.users.auth_router import auth_router
 from app.features.users.router import user_router
-from app.features.hospitals.router import hospital_router
 
 
 @asynccontextmanager
@@ -38,6 +40,12 @@ def get_app() -> FastAPI:
     app.include_router(user_router, prefix="/users", tags=["User Management"])
     app.include_router(
         hospital_router, prefix="/hospitals", tags=["Hospital Management"]
+    )
+    app.include_router(
+        prediction_router, prefix="/prediction", tags=["Prediction & Diagnostics"]
+    )
+    app.include_router(
+        federation_router, prefix="/federation", tags=["Federated Learning"]
     )
     return app
 

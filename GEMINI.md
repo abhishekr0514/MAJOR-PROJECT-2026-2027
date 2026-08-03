@@ -38,6 +38,8 @@
 3. **Database & Migrations**: All database model changes in `server/app/features/` MUST be registered in `server/app/core/models.py` and applied via Alembic migrations (`uv run alembic upgrade head`). Never modify DB schemas manually.
 4. **Code Quality, Linting & Type Hints**: All Python code MUST include strict type hints (`typing` module, `Pydantic` v2, Python 3.10+ syntax like `str | None` and `list[dict]`). All code MUST pass `uv run ruff check .` and `uv run ruff format .` clean without errors.
 5. **No Placeholders in Final Features**: Avoid dummy static responses in backend services once a feature module is marked complete.
+6. **Strict Domain Architecture & Repository Pattern**: All backend features in `server/app/features/<domain>/` MUST adhere to the 5-layer domain architecture (`models.py`, `schema.py`, `repository.py`, `service.py`, `router.py`). Feature repositories MUST subclass `BaseRepository[SQLModelType]` from `server/app/core/base_repository.py`. Services MUST query database data strictly via repository classes — direct ORM queries (`select()`, `session.execute()`) inside services or API routers are strictly prohibited.
+
 
 ---
 
