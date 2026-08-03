@@ -7,5 +7,9 @@ The order of imports matters: tables with no FK dependencies first.
 """
 
 # ruff: noqa: F401
+from app.features.federation.models import FLModelUpdate, FLRound
 from app.features.hospitals.models import Hospital
+from app.features.patients.models import Patient
+from app.features.prediction.models import Prediction
+from app.features.records.models import ClinicalRecord, ECGRecord
 from app.features.users.models import User
