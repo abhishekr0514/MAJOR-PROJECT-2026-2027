@@ -43,8 +43,14 @@ from collections import OrderedDict
 
 from client.ml_models.full_model import MedShieldDiagnosticNet
 
+
 class MedShieldFLClient(fl.client.NumPyClient):
-    def __init__(self, hospital_id: str, train_loader: torch.utils.data.DataLoader, val_loader: torch.utils.data.DataLoader) -> None:
+    def __init__(
+        self,
+        hospital_id: str,
+        train_loader: torch.utils.data.DataLoader,
+        val_loader: torch.utils.data.DataLoader,
+    ) -> None:
         self.hospital_id = hospital_id
         self.model = MedShieldDiagnosticNet()
         self.train_loader = train_loader
@@ -62,14 +68,16 @@ class MedShieldFLClient(fl.client.NumPyClient):
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         self.model.load_state_dict(state_dict, strict=True)
 
-    def fit(self, parameters: list[torch.Tensor], config: dict) -> tuple[list[torch.Tensor], int, dict]:
+    def fit(
+        self, parameters: list[torch.Tensor], config: dict
+    ) -> tuple[list[torch.Tensor], int, dict]:
         """Train model locally on client hospital data."""
         self.set_parameters(parameters)
         self.model.train()
-        
+
         optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-3)
         criterion = nn.CrossEntropyLoss()
-        
+
         epochs = config.get("epochs", 5)
         running_loss = 0.0
 
@@ -90,14 +98,16 @@ class MedShieldFLClient(fl.client.NumPyClient):
 
         num_samples = len(self.train_loader.dataset)
         avg_loss = running_loss / len(self.train_loader)
-        
+
         return self.get_parameters(config={}), num_samples, {"loss": float(avg_loss)}
 
-    def evaluate(self, parameters: list[torch.Tensor], config: dict) -> tuple[float, int, dict]:
+    def evaluate(
+        self, parameters: list[torch.Tensor], config: dict
+    ) -> tuple[float, int, dict]:
         """Evaluate aggregated global model on local hospital validation data."""
         self.set_parameters(parameters)
         self.model.eval()
-        
+
         criterion = nn.CrossEntropyLoss()
         correct, total_loss, total_samples = 0, 0.0, 0
 
@@ -110,7 +120,7 @@ class MedShieldFLClient(fl.client.NumPyClient):
 
                 outputs = self.model(ecg, input_ids, attn_mask, tab)
                 loss = criterion(outputs, targets)
-                
+
                 total_loss += loss.item() * targets.size(0)
                 preds = outputs.argmax(dim=1)
                 correct += (preds == targets).sum().item()
@@ -118,7 +128,7 @@ class MedShieldFLClient(fl.client.NumPyClient):
 
         accuracy = correct / total_samples
         avg_loss = total_loss / total_samples
-        
+
         return float(avg_loss), total_samples, {"accuracy": float(accuracy)}
 ```
 
@@ -131,11 +141,12 @@ Uses customized **`FedAvg`** / **`FedProx`** aggregation to handle non-IID healt
 ```python
 import flwr as fl
 
+
 def get_fl_strategy(min_clients: int = 2) -> fl.server.strategy.FedAvg:
     """Configure FedAvg strategy for hospital weight aggregation."""
     return fl.server.strategy.FedAvg(
-        fraction_fit=1.0,           # Train on all available connected hospital nodes
-        fraction_evaluate=1.0,      # Evaluate on all connected nodes
+        fraction_fit=1.0,  # Train on all available connected hospital nodes
+        fraction_evaluate=1.0,  # Evaluate on all connected nodes
         min_fit_clients=min_clients,
         min_evaluate_clients=min_clients,
         min_available_clients=min_clients,
@@ -150,6 +161,7 @@ def get_fl_strategy(min_clients: int = 2) -> fl.server.strategy.FedAvg:
 ```python
 import flwr as fl
 from server.app.features.federation.strategy import get_fl_strategy
+
 
 def start_fl_server(rounds: int = 5, port: int = 8080) -> None:
     strategy = get_fl_strategy()

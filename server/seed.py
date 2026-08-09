@@ -3,7 +3,10 @@ import sys
 
 from app.core.config import settings
 from app.core.database import SessionLocal
-from app.core.models import Hospital, User  # noqa: F401 — registers all models & relationships
+from app.core.models import (  # noqa: F401 — registers all models & relationships
+    Hospital,
+    User,
+)
 from app.core.security import hash_password
 from app.features.users.models import Role
 from app.features.users.repository import UserRepository

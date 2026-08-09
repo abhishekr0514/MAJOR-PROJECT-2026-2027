@@ -1,11 +1,10 @@
 """Data-access layer for the Hospital model."""
 
+from app.core.base_repository import BaseRepository
+from app.core.database import get_db
+from app.features.hospitals.models import Hospital
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.core.database import get_db
-from app.core.base_repository import BaseRepository
-from app.features.hospitals.models import Hospital
 
 
 class HospitalRepository(BaseRepository[Hospital]):

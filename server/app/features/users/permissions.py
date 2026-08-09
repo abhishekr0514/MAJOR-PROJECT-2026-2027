@@ -1,7 +1,6 @@
-from fastapi import Depends, HTTPException, status
-
 from app.features.users.dependencies import get_current_active_user
 from app.features.users.models import Role, User
+from fastapi import Depends, HTTPException, status
 
 
 class RoleChecker:

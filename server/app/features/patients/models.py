@@ -2,10 +2,9 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from app.core.database import Base
 from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from app.core.database import Base
 
 if TYPE_CHECKING:
     from app.features.hospitals.models import Hospital

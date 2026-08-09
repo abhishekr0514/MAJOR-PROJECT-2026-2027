@@ -85,14 +85,17 @@ from app.core.database import Base
 if TYPE_CHECKING:
     from app.features.hospitals.models import Hospital
 
+
 class Patient(Base):
     __tablename__ = "patients"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    patient_code: Mapped[str] = mapped_column(unique=True, index=True)  # Anonymized ID e.g., PAT-88402
+    patient_code: Mapped[str] = mapped_column(
+        unique=True, index=True
+    )  # Anonymized ID e.g., PAT-88402
     age: Mapped[int] = mapped_column()
     gender: Mapped[str] = mapped_column()  # 'M', 'F', 'Other'
-    
+
     hospital_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("hospitals.id", ondelete="CASCADE")
     )
@@ -113,6 +116,7 @@ from sqlalchemy import ForeignKey, func, JSON, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 
+
 class ClinicalRecord(Base):
     __tablename__ = "clinical_records"
 
@@ -121,7 +125,9 @@ class ClinicalRecord(Base):
         ForeignKey("patients.id", ondelete="CASCADE"), index=True
     )
     masked_text: Mapped[str] = mapped_column(Text)  # NER Anonymized clinical notes
-    symptoms: Mapped[dict | None] = mapped_column(JSON, default=None)  # e.g., {"chest_pain": True}
+    symptoms: Mapped[dict | None] = mapped_column(
+        JSON, default=None
+    )  # e.g., {"chest_pain": True}
     blood_pressure_sys: Mapped[int | None] = mapped_column(default=None)
     blood_pressure_dia: Mapped[int | None] = mapped_column(default=None)
     cholesterol_mg_dl: Mapped[float | None] = mapped_column(default=None)
@@ -143,7 +149,9 @@ class ECGRecord(Base):
     patient_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("patients.id", ondelete="CASCADE"), index=True
     )
-    signal_file_path: Mapped[str] = mapped_column()  # Path to local .npy or .mat signal file
+    signal_file_path: Mapped[str] = (
+        mapped_column()
+    )  # Path to local .npy or .mat signal file
     sampling_rate_hz: Mapped[int] = mapped_column(default=500)
     lead_count: Mapped[int] = mapped_column(default=12)
     duration_seconds: Mapped[float] = mapped_column(default=10.0)
@@ -166,8 +174,12 @@ class Prediction(Base):
     )
     risk_score: Mapped[float] = mapped_column()  # 0.0 to 1.0 probability
     diagnosis: Mapped[str] = mapped_column()  # "High Risk", "Moderate Risk", "Low Risk"
-    xai_counterfactuals: Mapped[dict | None] = mapped_column(JSON, default=None)  # DiCE output
-    causal_impact: Mapped[dict | None] = mapped_column(JSON, default=None)  # DoWhy output
+    xai_counterfactuals: Mapped[dict | None] = mapped_column(
+        JSON, default=None
+    )  # DiCE output
+    causal_impact: Mapped[dict | None] = mapped_column(
+        JSON, default=None
+    )  # DoWhy output
     model_version: Mapped[str] = mapped_column(default="1.0.0")
 
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
@@ -186,10 +198,15 @@ class FLRound(Base):
     round_number: Mapped[int] = mapped_column(unique=True, index=True)
     global_accuracy: Mapped[float | None] = mapped_column(default=None)
     global_loss: Mapped[float | None] = mapped_column(default=None)
-    weights_path: Mapped[str | None] = mapped_column(default=None)  # Aggregated weights file
-    status: Mapped[str] = mapped_column(default="IN_PROGRESS")  # "IN_PROGRESS", "COMPLETED"
+    weights_path: Mapped[str | None] = mapped_column(
+        default=None
+    )  # Aggregated weights file
+    status: Mapped[str] = mapped_column(
+        default="IN_PROGRESS"
+    )  # "IN_PROGRESS", "COMPLETED"
 
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
 
 class FLModelUpdate(Base):
     __tablename__ = "fl_model_updates"

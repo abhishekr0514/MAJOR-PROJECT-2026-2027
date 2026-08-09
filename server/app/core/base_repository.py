@@ -3,10 +3,9 @@
 import uuid
 from typing import Any
 
+from app.core.database import Base
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.core.database import Base
 
 
 class BaseRepository[SQLModelType: Base]:

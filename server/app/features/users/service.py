@@ -1,7 +1,5 @@
 """Business-logic layer for user authentication."""
 
-from fastapi import HTTPException, status
-
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -11,6 +9,7 @@ from app.core.security import (
 from app.features.users.models import Role, User
 from app.features.users.repository import UserRepository
 from app.features.users.schema import AdminUserCreate, TokenPair, UserCreate
+from fastapi import HTTPException, status
 
 # Defines which roles each actor is permitted to create.
 _CREATABLE_ROLES: dict[Role, set[Role]] = {
