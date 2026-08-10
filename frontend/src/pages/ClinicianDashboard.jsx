@@ -70,21 +70,39 @@ const generateECGWaveform = (leadNum = 1, heartRate = 72, hasAnomaly = false) =>
 const simulateNERMasking = (text) => {
   if (!text) return "";
   let masked = text;
-  
-  // Basic NER regex match patterns
-  const nameRegex = /\b(John Doe|Alice Smith|Robert Johnson|Emily Davis|Michael Brown|Sarah Wilson|David Taylor|Laura Martinez)\b/gi;
-  const mrnRegex = /\bMRN-\d+\b/gi;
-  const ssnRegex = /\b\d{3}-\d{2}-\d{4}\b/gi;
-  const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/gi;
-  const phoneRegex = /\b\d{3}-\d{3}-\d{4}\b/gi;
-  const dateRegex = /\b(202\d-\d{2}-\d{2})\b/gi;
 
-  masked = masked.replace(nameRegex, "[PATIENT_NAME]");
-  masked = masked.replace(mrnRegex, "[MRN]");
-  masked = masked.replace(ssnRegex, "[SSN_ID]");
+  // 1. Email Addresses
+  const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/gi;
   masked = masked.replace(emailRegex, "[EMAIL]");
+
+  // 2. SSN / Medical Record Numbers
+  const ssnRegex = /\b\d{3}[- ]?\d{2}[- ]?\d{4}\b/gi;
+  const mrnRegex = /\b(MRN|ID|PAT)[:#-]?\s*\w+/gi;
+  masked = masked.replace(ssnRegex, "[SSN_ID]");
+  masked = masked.replace(mrnRegex, "[MRN]");
+
+  // 3. Phone numbers (digits with/without hyphens, 7-15 digits long)
+  const phoneRegex = /(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}/g;
+  const digitSeqRegex = /\b\d{7,15}\b/g;
   masked = masked.replace(phoneRegex, "[PHONE_NUMBER]");
+  masked = masked.replace(digitSeqRegex, "[PHONE_NUMBER]");
+
+  // 4. Dates
+  const dateRegex = /\b(?:\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})\b/gi;
   masked = masked.replace(dateRegex, "[DATE]");
+
+  // 5. Contextual Names (e.g. "robert is well", "patient john", "contact sarah")
+  const titleNameRegex = /\b(?:patient|mr\.|ms\.|mrs\.|dr\.|contact|name is|his name|her name|is)\s+([A-Za-z]+)\b/gi;
+  
+  // Common names dictionary for single name masking
+  const commonNames = /\b(robert|john|alice|emily|michael|sarah|david|laura|chetan|smith|johnson|williams|brown|jones|miller|davis|garcia|rodriguez|martinez|hernandez|lopez|gonzalez|wilson|anderson|thomas|taylor|moore|jackson|martin|lee|perez|thompson|white|harris|sanchez|clark|ramirez|lewis|robinson|walker|young|allen|king|wright|scott|torres|nguyen|hill|flores|green|adams|nelson|baker|hall|rivera|campbell|mitchell|carter|roberts)\b/gi;
+
+  masked = masked.replace(commonNames, "[PATIENT_NAME]");
+  masked = masked.replace(titleNameRegex, (match, p1) => {
+    // Avoid double masking if already replaced
+    if (p1.startsWith("[")) return match;
+    return match.replace(p1, "[PATIENT_NAME]");
+  });
 
   return masked;
 };
