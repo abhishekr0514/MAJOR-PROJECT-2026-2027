@@ -1,0 +1,14 @@
+{
+  "pythonVersion": "3.13",
+  "extraPaths": [
+    "."
+  ],
+  "include": [
+    "client",
+    "server"
+  ],
+  "exclude": [
+    "**/__pycache__",
+    "**/.venv"
+  ]
+}
