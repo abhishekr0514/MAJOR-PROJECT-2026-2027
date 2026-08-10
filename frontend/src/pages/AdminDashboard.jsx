@@ -10,7 +10,7 @@ import {
   Trash2
 } from 'lucide-react';
 import FLTrainingMonitor from '../components/admin/FLTrainingMonitor';
-import { flStatusFederationStatusGet, flStartRoundFederationRoundsStartPost } from '../api';
+import { flStatusFederationStatusGet, flStartRoundFederationRoundsStartPost, listHospitalsHospitalsGet } from '../api';
 
 // Default FL training rounds fallback list
 const defaultRounds = [
@@ -43,16 +43,20 @@ export const AdminDashboard = () => {
   const [newNodeName, setNewNodeName] = useState('');
   const [newNodeRecords, setNewNodeRecords] = useState(120);
 
-  // Poll live FL status from FastAPI server on mount
+  // Fetch live FL status and hospital nodes from backend when authenticated
   useEffect(() => {
-    const fetchFLStatus = async () => {
+    const fetchData = async () => {
       const token = localStorage.getItem('access_token') || localStorage.getItem('token');
-      if (!token) return; // Skip API polling if user is not logged in as Admin
+      if (!token) return; // Skip API calls if not logged in
 
       try {
-        const response = await flStatusFederationStatusGet();
-        if (response && response.data) {
-          const { current_round, global_accuracy, global_loss, participating_hospitals_count } = response.data;
+        const [flRes, hosRes] = await Promise.all([
+          flStatusFederationStatusGet().catch(() => null),
+          listHospitalsHospitalsGet().catch(() => null)
+        ]);
+
+        if (flRes && flRes.data) {
+          const { current_round, global_accuracy, global_loss, participating_hospitals_count } = flRes.data;
           if (current_round > 0) {
             setRoundsData((prev) => {
               const updated = [...prev];
@@ -70,12 +74,23 @@ export const AdminDashboard = () => {
             });
           }
         }
+
+        if (hosRes && hosRes.data && hosRes.data.length > 0) {
+          setNodes(hosRes.data.map((h) => ({
+            id: h.id,
+            name: h.name,
+            records: 150,
+            status: h.is_active ? 'Online' : 'Offline',
+            lastActive: 'Active',
+            key: h.license_code
+          })));
+        }
       } catch (err) {
-        // Quietly fallback for unauthenticated preview mode
+        // Quiet fallback for local guest preview mode
       }
     };
 
-    fetchFLStatus();
+    fetchData();
   }, [strategy]);
 
   // Handle FL Round execution trigger

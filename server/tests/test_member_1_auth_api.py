@@ -13,23 +13,28 @@ from app.features.users.models import Role, User
 @pytest.mark.asyncio
 async def test_auth_and_prediction_endpoints():
     async with SessionLocal() as db:
-        # Create test hospital
-        hospital = Hospital(name="Test Hospital", license_code="HOSP_TEST")
-        db.add(hospital)
-        await db.commit()
-        await db.refresh(hospital)
+        from app.features.hospitals.repository import HospitalRepository
+        from app.features.users.repository import UserRepository
 
-        # Create test super admin
-        user = User(
-            email="admin_test@medshield.org",
-            hashed_password=hash_password("TestPassword123!"),
-            full_name="Admin Test",
-            role=Role.SUPER_ADMIN,
-            hospital_id=hospital.id,
-            is_active=True,
-        )
-        db.add(user)
-        await db.commit()
+        hosp_repo = HospitalRepository(db)
+        user_repo = UserRepository(db)
+
+        hospital = await hosp_repo.get_one_by(license_code="HOSP_TEST")
+        if not hospital:
+            hospital = Hospital(name="Test Hospital", license_code="HOSP_TEST")
+            hospital = await hosp_repo.create(hospital)
+
+        user = await user_repo.get_one_by(email="admin_test@medshield.org")
+        if not user:
+            user = User(
+                email="admin_test@medshield.org",
+                hashed_password=hash_password("TestPassword123!"),
+                full_name="Admin Test",
+                role=Role.SUPER_ADMIN,
+                hospital_id=hospital.id,
+                is_active=True,
+            )
+            await user_repo.create(user)
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://testserver"

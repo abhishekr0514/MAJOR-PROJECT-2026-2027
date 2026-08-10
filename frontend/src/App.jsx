@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, 
   Lock, 
@@ -6,14 +6,42 @@ import {
   User, 
   Activity, 
   Database,
-  ExternalLink
+  ExternalLink,
+  LogIn,
+  LogOut,
+  CheckCircle2
 } from 'lucide-react';
 import ClinicianDashboard from './pages/ClinicianDashboard';
 import PatientPortal from './pages/PatientPortal';
 import AdminDashboard from './pages/AdminDashboard';
+import LoginModal from './components/auth/LoginModal';
 
 export default function App() {
   const [currentRole, setCurrentRole] = useState('clinician'); // clinician, patient, admin
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState(localStorage.getItem('user_email') || '');
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('access_token'));
+
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    const email = localStorage.getItem('user_email');
+    if (token) {
+      setIsAuthenticated(true);
+      if (email) setUserEmail(email);
+    }
+  }, []);
+
+  const handleLoginSuccess = (email) => {
+    setIsAuthenticated(true);
+    setUserEmail(email);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_email');
+    setIsAuthenticated(false);
+    setUserEmail('');
+  };
 
   const renderActiveView = () => {
     switch (currentRole) {
@@ -47,16 +75,40 @@ export default function App() {
           </div>
         </div>
 
-        {/* Global connection telemetry indicators */}
+        {/* Global connection telemetry indicators & Auth status */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/40 border border-slate-850 text-xs text-slate-350 select-none">
             <Lock className="w-3.5 h-3.5 text-emerald-400" />
             <span>SecAgg Active</span>
           </div>
+
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/40 border border-slate-850 text-xs text-slate-350 select-none">
             <Cpu className="w-3.5 h-3.5 text-cyan-400" />
             <span>FL Convergence Round #5</span>
           </div>
+
+          {/* Authentication Badge */}
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="font-semibold">{userEmail || 'Connected'}</span>
+              <button 
+                onClick={handleLogout}
+                title="Log out"
+                className="ml-1 p-1 hover:bg-emerald-500/20 rounded-full transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5 text-emerald-400 hover:text-rose-400" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsLoginModalOpen(true)}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-xs font-bold text-indigo-300 hover:text-indigo-200 transition-all duration-200 shadow-lg shadow-indigo-500/10"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Sign In (JWT)</span>
+            </button>
+          )}
         </div>
       </header>
 
@@ -105,6 +157,13 @@ export default function App() {
       <main className="transition-all duration-300">
         {renderActiveView()}
       </main>
+
+      {/* Authentication Modal */}
+      <LoginModal 
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
 
       {/* Footer Branding */}
       <footer className="pt-6 border-t border-slate-900 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-500 gap-2">

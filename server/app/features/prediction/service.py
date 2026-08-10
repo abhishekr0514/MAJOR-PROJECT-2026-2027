@@ -1,7 +1,5 @@
 """Service layer for diagnostic risk predictions and XAI counterfactual generation."""
 
-import uuid
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.features.patients.models import Patient
@@ -26,11 +24,28 @@ async def process_prediction(
     # 1. Fetch or create patient via repository
     patient = await patient_repo.get_one_by(patient_code=data.patient_code)
     if not patient:
+        hospital_id = current_user.hospital_id
+        if not hospital_id:
+            from app.features.hospitals.models import Hospital
+            from app.features.hospitals.repository import HospitalRepository
+
+            hosp_repo = HospitalRepository(db)
+            hospitals = await hosp_repo.get_all(limit=1)
+            first_hosp = hospitals[0] if hospitals else None
+            if first_hosp:
+                hospital_id = first_hosp.id
+            else:
+                new_hosp = Hospital(
+                    name="Central General Hospital", license_code="MSFL-CENTRAL-001"
+                )
+                new_hosp = await hosp_repo.create(new_hosp)
+                hospital_id = new_hosp.id
+
         patient = Patient(
             patient_code=data.patient_code,
             age=data.age,
             gender=data.gender,
-            hospital_id=current_user.hospital_id or uuid.uuid4(),
+            hospital_id=hospital_id,
         )
         patient = await patient_repo.create(patient)
 
