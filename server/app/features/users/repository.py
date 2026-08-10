@@ -1,11 +1,10 @@
 """Data-access layer for the User model."""
 
+from app.core.base_repository import BaseRepository
+from app.core.database import get_db
+from app.features.users.models import User
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.core.database import get_db
-from app.core.base_repository import BaseRepository
-from app.features.users.models import User
 
 
 class UserRepository(BaseRepository[User]):

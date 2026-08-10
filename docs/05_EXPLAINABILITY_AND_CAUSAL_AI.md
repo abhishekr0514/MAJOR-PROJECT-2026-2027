@@ -22,11 +22,14 @@ import dice_ml
 import pandas as pd
 from typing import Any
 
+
 class CounterfactualExplainer:
-    def __init__(self, model: Any, feature_names: list[str], continuous_features: list[str]) -> None:
+    def __init__(
+        self, model: Any, feature_names: list[str], continuous_features: list[str]
+    ) -> None:
         """Initialize DiCE explainer on trained diagnostic model."""
         self.feature_names = feature_names
-        
+
         # Create DiCE Data object
         self.d = dice_ml.Data(
             dataframe=pd.DataFrame(columns=feature_names + ["diagnosis"]),
@@ -42,12 +45,12 @@ class CounterfactualExplainer:
     ) -> list[dict[str, Any]]:
         """Generate counterfactual feature targets for a high-risk patient."""
         input_df = pd.DataFrame([patient_features])
-        
+
         # Generate counterfactuals targeting Low Risk (diagnosis = 0)
         cf = self.exp.generate_counterfactuals(
             input_df, total_CFs=num_cfs, desired_class=0
         )
-        
+
         cf_json = cf.to_json()
         return cf_json
 ```
@@ -62,6 +65,7 @@ Uses `dowhy` to build domain-specific causal DAGs (Directed Acyclic Graphs).
 import dowhy
 from dowhy import CausalModel
 import pandas as pd
+
 
 class CausalInferenceEngine:
     def __init__(self) -> None:
@@ -78,7 +82,10 @@ class CausalInferenceEngine:
         """
 
     def estimate_causal_effect(
-        self, df: pd.DataFrame, treatment: str = "smoking", outcome: str = "heart_disease"
+        self,
+        df: pd.DataFrame,
+        treatment: str = "smoking",
+        outcome: str = "heart_disease",
     ) -> dict[str, float]:
         """Estimate Causal Effect of a treatment/lifestyle factor on heart disease."""
         model = CausalModel(
@@ -87,16 +94,16 @@ class CausalInferenceEngine:
             outcome=outcome,
             graph=self.causal_graph_dot,
         )
-        
+
         # 1. Identify Causal Effect
         identified_estimand = model.identify_effect()
-        
+
         # 2. Estimate Effect using Linear Regression / Propensity Score Matching
         causal_estimate = model.estimate_effect(
             identified_estimand,
             method_name="backdoor.linear_regression",
         )
-        
+
         return {
             "treatment": treatment,
             "outcome": outcome,

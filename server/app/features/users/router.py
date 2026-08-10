@@ -1,12 +1,11 @@
 """Admin-protected user management routes."""
 
-from fastapi import APIRouter, Depends, status
-
 from app.features.users.models import Role, User
 from app.features.users.permissions import RoleChecker
 from app.features.users.repository import UserRepository, get_user_repository
 from app.features.users.schema import AdminUserCreate, UserResponse
 from app.features.users.service import admin_create_user
+from fastapi import APIRouter, Depends, status
 
 user_router = APIRouter()
 

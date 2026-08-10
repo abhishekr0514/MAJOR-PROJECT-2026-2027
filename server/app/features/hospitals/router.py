@@ -1,7 +1,5 @@
 """Hospital management routes."""
 
-from fastapi import APIRouter, Depends, status
-
 from app.features.hospitals.repository import (
     HospitalRepository,
     get_hospital_repository,
@@ -10,6 +8,7 @@ from app.features.hospitals.schema import HospitalCreate, HospitalResponse
 from app.features.hospitals.service import create_hospital
 from app.features.users.models import Role, User
 from app.features.users.permissions import RoleChecker
+from fastapi import APIRouter, Depends, status
 
 hospital_router = APIRouter()
 

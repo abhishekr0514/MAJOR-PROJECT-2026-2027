@@ -1,10 +1,9 @@
 """Business logic for hospitals."""
 
-from fastapi import HTTPException, status
-
 from app.features.hospitals.models import Hospital
 from app.features.hospitals.repository import HospitalRepository
 from app.features.hospitals.schema import HospitalCreate
+from fastapi import HTTPException, status
 
 
 async def create_hospital(repo: HospitalRepository, data: HospitalCreate) -> Hospital:

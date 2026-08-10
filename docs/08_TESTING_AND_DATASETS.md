@@ -26,6 +26,7 @@ import pandas as pd
 import json
 from pathlib import Path
 
+
 def generate_hospital_datasets(output_dir: str = "client/data") -> None:
     """Generate synthetic tabular, ECG, and clinical text datasets for FL simulation."""
     out_path = Path(output_dir)
@@ -39,36 +40,43 @@ def generate_hospital_datasets(output_dir: str = "client/data") -> None:
 
     for idx, h_id in enumerate(hospitals):
         n_samples = num_samples_per_hospital[idx]
-        
+
         # 1. Generate Synthetic Tabular Metrics
-        df = pd.DataFrame({
-            "patient_code": [f"PAT-{h_id[:3].upper()}-{i:04d}" for i in range(n_samples)],
-            "age": np.random.randint(35, 80, size=n_samples),
-            "gender": np.random.choice(["M", "F"], size=n_samples),
-            "blood_pressure_sys": np.random.randint(110, 180, size=n_samples),
-            "blood_pressure_dia": np.random.randint(70, 110, size=n_samples),
-            "cholesterol_mg_dl": np.random.uniform(150, 320, size=n_samples).round(1),
-            "fasting_bs_mg_dl": np.random.uniform(80, 160, size=n_samples).round(1),
-            "diagnosis": np.random.choice([0, 1], size=n_samples, p=[0.6, 0.4]),
-        })
+        df = pd.DataFrame(
+            {
+                "patient_code": [
+                    f"PAT-{h_id[:3].upper()}-{i:04d}" for i in range(n_samples)
+                ],
+                "age": np.random.randint(35, 80, size=n_samples),
+                "gender": np.random.choice(["M", "F"], size=n_samples),
+                "blood_pressure_sys": np.random.randint(110, 180, size=n_samples),
+                "blood_pressure_dia": np.random.randint(70, 110, size=n_samples),
+                "cholesterol_mg_dl": np.random.uniform(150, 320, size=n_samples).round(
+                    1
+                ),
+                "fasting_bs_mg_dl": np.random.uniform(80, 160, size=n_samples).round(1),
+                "diagnosis": np.random.choice([0, 1], size=n_samples, p=[0.6, 0.4]),
+            }
+        )
 
         # 2. Add Synthetic Raw Text Notes with PII
         raw_texts = []
         for i in range(n_samples):
             name = np.random.choice(sample_names)
             city = np.random.choice(sample_cities)
-            text = f"Patient {name} (MRN-{100000+i}) admitted in {city}. Reports tightness in chest and shortness of breath."
+            text = f"Patient {name} (MRN-{100000 + i}) admitted in {city}. Reports tightness in chest and shortness of breath."
             raw_texts.append(text)
         df["raw_clinical_text"] = raw_texts
 
         # 3. Save CSV Dataset
         df.to_csv(out_path / f"{h_id}_data.csv", index=False)
-        
+
         # 4. Generate Synthetic ECG Waveforms (n_samples, 12 leads, 1000 time-steps)
         ecg_signals = np.random.randn(n_samples, 12, 1000).astype(np.float32)
         np.save(out_path / f"{h_id}_ecg.npy", ecg_signals)
 
         print(f"✅ Generated dataset for {h_id}: {n_samples} samples.")
+
 
 if __name__ == "__main__":
     generate_hospital_datasets()
@@ -82,9 +90,12 @@ if __name__ == "__main__":
 ```python
 from client.privacy.pipeline import PrivacyPipeline
 
+
 def test_ner_masking_zero_pii_leak():
     pipeline = PrivacyPipeline()
-    sample_text = "Patient Alice Walker (SSN: 123-45-6789) visited Mercy Hospital on 2026-04-10."
+    sample_text = (
+        "Patient Alice Walker (SSN: 123-45-6789) visited Mercy Hospital on 2026-04-10."
+    )
     masked = pipeline.process(sample_text)
 
     assert "Alice Walker" not in masked
@@ -97,6 +108,7 @@ def test_ner_masking_zero_pii_leak():
 ```python
 import torch
 from client.ml_models.full_model import MedShieldDiagnosticNet
+
 
 def test_full_model_forward_pass():
     model = MedShieldDiagnosticNet()

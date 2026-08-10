@@ -1,9 +1,5 @@
 """Authentication routes — signup, login, refresh, and profile."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
-from jose import JWTError
-
 from app.core.security import decode_token
 from app.features.users.dependencies import get_current_active_user
 from app.features.users.models import User
@@ -15,6 +11,9 @@ from app.features.users.schema import (
     UserResponse,
 )
 from app.features.users.service import authenticate_user, create_user, generate_tokens
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from jose import JWTError
 
 auth_router = APIRouter()
 

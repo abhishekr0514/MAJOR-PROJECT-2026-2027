@@ -36,6 +36,7 @@ Uses `spaCy` / Transformers to identify named entities:
 ```python
 import spacy
 
+
 class NERMasker:
     def __init__(self, model_name: str = "en_core_web_sm") -> None:
         """Initialize spaCy NLP model for entity detection."""
@@ -44,6 +45,7 @@ class NERMasker:
         except OSError:
             # Fallback if model not downloaded
             import spacy.cli
+
             spacy.cli.download(model_name)
             self.nlp = spacy.load(model_name)
 
@@ -60,16 +62,16 @@ class NERMasker:
         """Scrub named entities from raw clinical text."""
         doc = self.nlp(text)
         masked_text = text
-        
+
         # Sort entities in reverse position order to avoid offset shift
         entities = sorted(doc.ents, key=lambda e: e.start_char, reverse=True)
         for ent in entities:
             if ent.label_ in self.replacement_map:
                 placeholder = self.replacement_map[ent.label_]
                 masked_text = (
-                    masked_text[:ent.start_char]
+                    masked_text[: ent.start_char]
                     + placeholder
-                    + masked_text[ent.end_char:]
+                    + masked_text[ent.end_char :]
                 )
         return masked_text
 ```
@@ -82,13 +84,20 @@ Complements NER to catch numerical patterns (Phone numbers, SSNs, MRNs, Emails):
 ```python
 import re
 
+
 class PatternAnonymizer:
     def __init__(self) -> None:
         self.patterns: list[tuple[re.Pattern[str], str]] = [
             (re.compile(r"\b\d{3}-\d{2}-\d{4}\b"), "[SSN]"),  # Social Security Number
-            (re.compile(r"\b\d{10}\b"), "[PHONE]"),            # 10-digit Phone
-            (re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"), "[EMAIL]"),
-            (re.compile(r"\bMRN-?\d{6,8}\b", re.IGNORECASE), "[MRN]"),  # Medical Record Number
+            (re.compile(r"\b\d{10}\b"), "[PHONE]"),  # 10-digit Phone
+            (
+                re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"),
+                "[EMAIL]",
+            ),
+            (
+                re.compile(r"\bMRN-?\d{6,8}\b", re.IGNORECASE),
+                "[MRN]",
+            ),  # Medical Record Number
         ]
 
     def scrub(self, text: str) -> str:
@@ -106,6 +115,7 @@ class PatternAnonymizer:
 ```python
 from client.privacy.anonymizer import PatternAnonymizer
 from client.privacy.ner_masker import NERMasker
+
 
 class PrivacyPipeline:
     def __init__(self) -> None:

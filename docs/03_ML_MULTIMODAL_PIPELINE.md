@@ -31,8 +31,11 @@ Processes 12-lead ECG time-series signals.
 import torch
 import torch.nn as nn
 
+
 class ECGBiLSTM(nn.Module):
-    def __init__(self, in_channels: int = 12, hidden_dim: int = 64, num_layers: int = 2) -> None:
+    def __init__(
+        self, in_channels: int = 12, hidden_dim: int = 64, num_layers: int = 2
+    ) -> None:
         super().__init__()
         self.conv1d = nn.Sequential(
             nn.Conv1d(in_channels, 32, kernel_size=5, stride=2, padding=2),
@@ -68,13 +71,18 @@ import torch
 import torch.nn as nn
 from transformers import AutoModel
 
+
 class ClinicalTextBERT(nn.Module):
-    def __init__(self, pretrained_model: str = "emilyalsentzer/Bio_ClinicalBERT") -> None:
+    def __init__(
+        self, pretrained_model: str = "emilyalsentzer/Bio_ClinicalBERT"
+    ) -> None:
         super().__init__()
         self.bert = AutoModel.from_pretrained(pretrained_model)
         self.projection = nn.Linear(self.bert.config.hidden_size, 128)
 
-    def forward(self, input_ids: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self, input_ids: torch.Tensor, attention_mask: torch.Tensor
+    ) -> torch.Tensor:
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         cls_output = outputs.last_hidden_state[:, 0, :]  # CLS token embedding
         embed = self.projection(cls_output)  # (batch_size, 128)
@@ -89,6 +97,7 @@ Encodes patient age, blood pressure, cholesterol, and lifestyle metrics.
 ```python
 import torch
 import torch.nn as nn
+
 
 class TabularEncoder(nn.Module):
     def __init__(self, num_features: int = 10) -> None:
@@ -115,11 +124,14 @@ Fuses ECG (128d), Text (128d), and Tabular (64d) embeddings using a Graph Neural
 import torch
 import torch.nn as nn
 
+
 class GNNMultimodalFusion(nn.Module):
-    def __init__(self, ecg_dim: int = 128, text_dim: int = 128, tab_dim: int = 64) -> None:
+    def __init__(
+        self, ecg_dim: int = 128, text_dim: int = 128, tab_dim: int = 64
+    ) -> None:
         super().__init__()
         total_dim = ecg_dim + text_dim + tab_dim  # 320d
-        
+
         self.fusion_head = nn.Sequential(
             nn.Linear(total_dim, 256),
             nn.BatchNorm1d(256),
@@ -130,7 +142,9 @@ class GNNMultimodalFusion(nn.Module):
             nn.Linear(64, 2),  # 2 classes: Low Risk (0), High Risk (1)
         )
 
-    def forward(self, ecg_embed: torch.Tensor, text_embed: torch.Tensor, tab_embed: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self, ecg_embed: torch.Tensor, text_embed: torch.Tensor, tab_embed: torch.Tensor
+    ) -> torch.Tensor:
         # Concatenate modal embeddings
         fused = torch.cat([ecg_embed, text_embed, tab_embed], dim=1)
         logits = self.fusion_head(fused)
@@ -144,6 +158,7 @@ class GNNMultimodalFusion(nn.Module):
 ```python
 import torch
 import torch.nn as nn
+
 
 class MedShieldDiagnosticNet(nn.Module):
     def __init__(self) -> None:

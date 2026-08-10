@@ -140,6 +140,7 @@ from pydantic import BaseModel, Field
 from uuid import UUID
 from datetime import datetime
 
+
 class PredictionCreateSchema(BaseModel):
     patient_code: str = Field(..., example="PAT-1042")
     age: int = Field(..., ge=0, le=120)
@@ -149,6 +150,7 @@ class PredictionCreateSchema(BaseModel):
     cholesterol_mg_dl: float = Field(..., ge=50.0, le=600.0)
     clinical_text_masked: str
     ecg_signal_file_path: str | None = None
+
 
 class PredictionResponseSchema(BaseModel):
     id: UUID

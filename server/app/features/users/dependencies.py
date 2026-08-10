@@ -1,12 +1,11 @@
 """FastAPI dependencies for user authentication."""
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError
-
 from app.core.security import decode_token
 from app.features.users.models import User
 from app.features.users.repository import UserRepository, get_user_repository
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 

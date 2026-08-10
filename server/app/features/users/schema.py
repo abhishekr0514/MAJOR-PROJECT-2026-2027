@@ -3,9 +3,8 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
-
 from app.features.users.models import Role
+from pydantic import BaseModel, EmailStr, Field
 
 
 # ---------------------------------------------------------------------------

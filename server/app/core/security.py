@@ -3,9 +3,8 @@
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
-from jose import JWTError, jwt
-
 from app.core.config import settings
+from jose import JWTError, jwt
 
 # ---------------------------------------------------------------------------
 # Password hashing (bcrypt)
