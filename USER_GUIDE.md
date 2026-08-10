@@ -20,7 +20,7 @@ This guide provides end-to-end operational instructions for all project stakehol
 ## 🚀 Quickstart & Environment Setup
 
 ### System Prerequisites
-- **Operating System**: Windows 11 (WSL2 recommended or Native PowerShell), Linux (Ubuntu 22.04+ / Fedora), or macOS
+- **Operating System**: Windows 11 (WSL2, Git Bash, or Native PowerShell), Linux (Ubuntu 22.04+ / Fedora), or macOS
 - **Python Runtime**: Python 3.10+ (managed via `uv` or Python installer)
 - **Node.js Environment**: Node.js v18+ and `npm`
 - **Database Engine**: PostgreSQL v14+ (or Docker Desktop / PostgreSQL for Windows)
@@ -41,10 +41,9 @@ uv run alembic upgrade head
 uv run python seed.py
 cd ..
 
-# 4. Install frontend dependencies
-cd frontend
-npm install
-cd ..
+# 4. Install dependencies via Makefile (Cross-Platform)
+make install
+make frontend-install
 ```
 
 ---
@@ -57,9 +56,9 @@ As a Super Admin, you oversee system health, hospital institution registration, 
 
 #### Key Operations:
 
-##### A. Starting the Infrastructure
+##### A. Starting the Infrastructure (Cross-Platform Makefile)
 
-**Option 1: Linux / macOS / Windows WSL2 (Using `make`)**
+**Linux / macOS / Windows (WSL2 / Git Bash / PowerShell):**
 ```bash
 # Terminal 1: Run FastAPI backend server (Port 8000)
 make run
@@ -71,7 +70,7 @@ make frontend
 make fl-server
 ```
 
-**Option 2: Windows 11 Native (PowerShell / Command Prompt)**
+**Windows Native (Manual PowerShell / CMD):**
 ```powershell
 # Terminal 1: Run FastAPI backend server
 cd server
@@ -83,7 +82,7 @@ npm run dev
 
 # Terminal 3: Run Flower FL Central Server
 cd server
-uv run python -m app.features.federation.fl_server
+uv run python -m app.features.federation.fl_server --rounds 5 --port 8080 --min-clients 1
 ```
 
 ##### B. Authenticating via the React UI
@@ -92,7 +91,7 @@ uv run python -m app.features.federation.fl_server
 3. Enter Super Admin credentials:
    - **Email**: `admin@heart.com`
    - **Password**: `change-me-immediately`
-4. The header badge will update to **`Connected (admin@heart.com)`**.
+4. The header badge will update to **`Connected (admin@heart.com)`** and store the JWT access token in `localStorage`.
 
 ##### C. Registering Hospital Nodes
 1. Navigate to the **Admin Console** tab in the UI.
@@ -104,8 +103,8 @@ uv run python -m app.features.federation.fl_server
 1. In **Admin Console**, select your **Aggregation Strategy**:
    - `FedAvg` (Standard Federated Averaging)
    - `FedProx` (Proximal Regularization for Non-IID Hospital Datasets)
-2. Set minimum required client nodes (e.g. `2`).
-3. Click **`Trigger Training Round`**. The central server will coordinate weight updates across connected client nodes.
+2. Set minimum required client nodes (e.g. `1` or `2`).
+3. Click **`Trigger Training Round`**. The central server will coordinate weight updates across connected client nodes and log convergence metrics.
 
 ##### E. Regenerating the API SDK (On Backend Changes)
 Whenever FastAPI routes or schemas update:
@@ -132,13 +131,15 @@ cd client
 uv run python fl_client.py --server 127.0.0.1:8080 --hospital-id hospital_alpha
 ```
 
-##### B. Local Privacy & NER Masking Verification
-Before local model training or feature extraction begins, Named Entity Recognition (NER) strips sensitive patient identifiers:
-- **Redacted Fields**: Patient Names, Social Security Numbers (SSN), Medical Record Numbers (MRN), Phone Numbers, Email Addresses, and exact dates.
-- **Verification Script**:
+##### B. Deep Learning Privacy & NER Masking Engine
+Before local model training or feature extraction begins, Member 2's Named Entity Recognition (NER) pipeline scrubs sensitive PII:
+- **Engine**: **spaCy Transformer (`en_core_web_sm`) + Clinical Whitelist + Structured Regex Layer**.
+- **Scrubbed Fields**: Patient Names (`[PATIENT_NAME]`), SSNs (`[SSN_ID]`), MRNs (`[MRN]`), Phone Numbers (`[PHONE_NUMBER]`), Email Addresses (`[EMAIL]`), and Dates (`[DATE]`).
+- **Clinical Whitelist**: Preserves diagnostic medical terms (e.g. *angina*, *ischemia*, *infarction*, *dyspnea*, *arrhythmia*) so clinical meaning is retained for training.
+- **Verification CLI**:
   ```bash
   cd client
-  uv run python privacy/ner_masker.py
+  uv run python privacy/ner_masker.py --input "Patient Harrison admitted on 2026-04-12. Contact robert.j@example.com, phone 7892887942. Reports acute exertional angina."
   ```
 
 ---
@@ -155,8 +156,8 @@ Clinicians use MedShield FL to evaluate patient heart disease risk using multimo
    - **Patient ID**: e.g., `PAT-1042`
    - **Age & Gender**: e.g., `58 yrs`, `Male`
    - **Vitals**: Systolic/Diastolic Blood Pressure, Serum Cholesterol, Fasting Blood Sugar.
-   - **Clinical Notes**: Enter clinical observations (e.g. *"Patient reports exertional chest tightness"*).
-3. Observe the **Privacy NER Pipeline** preview — names and dates are automatically masked in real-time.
+   - **Clinical Notes**: Enter clinical observations.
+3. Observe the **Privacy NER Pipeline Preview** — the UI calls `POST /prediction/mask-text` live to render spaCy Transformer redacted notes with the `spaCy Transformer (en_core_web_sm)` badge.
 4. Click **`Secure Predict & Evaluate`**.
 
 ##### B. Interpreting Multimodal Diagnostic Results
@@ -199,18 +200,34 @@ Patients access anonymized health metrics and personalized lifestyle recommendat
 | `POST /prediction/predict 401 Unauthorized` | JWT token not present in browser storage. | Click **`Sign In (JWT)`** in header and log in with `admin@heart.com`. |
 | `POST /prediction/predict 404 Not Found` | Request hitting Vite dev server port (5173) instead of API port (8000). | Ensure `make run` is running and API base URL is set to `http://localhost:8000`. |
 | `IntegrityError: duplicate key` in tests | Pre-existing test entries in DB. | Run `uv run alembic upgrade head` or re-seed test DB. |
+| `ModuleNotFoundError: No module named 'client'` | Backend python path offset. | Resolved in `POST /prediction/mask-text` by auto-registering project root in `sys.path`. |
 | `Untyped function calls` in TS | IDE background type inference. | Clean build via `make generate-api` and `npm run build`. |
 
 ---
 
-## 📜 Port Reference Table
+## 📜 Port & Makefile Reference Table
 
+### Port Mappings:
 | Service / Component | Protocol / Port | Entrypoint File |
 | :--- | :--- | :--- |
 | **FastAPI Backend Server** | `HTTP / 8000` | `server/main.py` |
 | **React Frontend App** | `HTTP / 5173` | `frontend/src/main.jsx` |
 | **Flower FL Server** | `gRPC / 8080` | `server/app/features/federation/fl_server.py` |
 | **PostgreSQL Database** | `TCP / 5432` | `server/app/core/database.py` |
+
+### Makefile Quick Reference:
+```bash
+make install          # Install backend dependencies
+make client-install   # Install client ML dependencies
+make frontend-install # Install React UI dependencies
+make run              # Start FastAPI server (Port 8000)
+make fl-server        # Start Flower FL Aggregator (Port 8080)
+make fl-client        # Start Hospital Client Node
+make frontend         # Start React UI Dev Server (Port 5173)
+make generate-api     # Regenerate Hey API SDK from OpenAPI
+make test             # Run backend test suite
+make clean            # Clear cache files (Windows & Unix support)
+```
 
 ---
 

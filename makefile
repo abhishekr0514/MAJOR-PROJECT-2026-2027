@@ -1,9 +1,19 @@
-# Makefile for MedShield FL Framework
+# Makefile for MedShield FL Framework (Cross-Platform: Windows, Linux, macOS)
 
-.PHONY: help install client-install frontend-install run fl-server fl-client frontend test test-fl test-client lint format fix clean migrate makemigration seed structure
+ifeq ($(OS),Windows_NT)
+    DETECTED_OS := Windows
+    CLEAN_CMD := powershell -Command "Get-ChildItem -Recurse -Include '__pycache__','.ruff_cache','.pytest_cache' | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue"
+    TREE_CMD := powershell -Command "Get-ChildItem -Recurse -Exclude '__pycache__','.git','.venv','node_modules','dist' | Select-Object FullName"
+else
+    DETECTED_OS := Unix
+    CLEAN_CMD := find . -type d \( -name "__pycache__" -o -name ".ruff_cache" -o -name ".pytest_cache" \) -exec rm -rf {} + 2>/dev/null || true
+    TREE_CMD := tree -I "__pycache__|.git|.venv|venv|.ruff_cache|.pytest_cache|.mypy_cache|.vscode|.idea|.env|*.pyc|uv.lock|node_modules|dist"
+endif
+
+.PHONY: help install client-install frontend-install run fl-server fl-client frontend generate-api test test-fl test-client lint format fix clean migrate makemigration seed structure
 
 help:
-	@echo "MedShield FL - Available Commands:"
+	@echo "MedShield FL - Available Commands (OS: $(DETECTED_OS)):"
 	@echo "  install          - Install backend server dependencies (uv sync)"
 	@echo "  client-install   - Install client ML/FL dependencies (uv sync)"
 	@echo "  frontend-install - Install React.js frontend dependencies (npm install)"
@@ -11,6 +21,7 @@ help:
 	@echo "  fl-server        - Start central Flower FL server aggregator (port 8080)"
 	@echo "  fl-client        - Start hospital client node (hospital_alpha)"
 	@echo "  frontend         - Start React.js frontend dev server (Vite)"
+	@echo "  generate-api     - Regenerate API SDK from OpenAPI specification"
 	@echo "  test             - Run all backend server and FL round integration tests"
 	@echo "  test-fl          - Run multi-hospital FL round simulation test"
 	@echo "  test-client      - Run client ML, privacy, and XAI test suite"
@@ -20,14 +31,14 @@ help:
 	@echo "  migrate          - Apply database migrations (alembic upgrade head)"
 	@echo "  makemigration    - Generate a new database migration (requires m='message')"
 	@echo "  seed             - Seed initial database with super admin & hospital data"
-	@echo "  structure        - Show directory structure tree"
 	@echo "  clean            - Clear cache directories (__pycache__, .pytest_cache, etc.)"
+	@echo "  structure        - Show directory structure tree"
 
 install:
-	cd server && uv sync --index-strategy unsafe-best-match --index https://download.pytorch.org/whl/cpu
+	cd server && uv sync --index-strategy unsafe-best-match
 
 client-install:
-	cd client && uv sync --index-strategy unsafe-best-match --index https://download.pytorch.org/whl/cpu
+	cd client && uv sync --index-strategy unsafe-best-match
 
 frontend-install:
 	cd frontend && npm install
@@ -78,10 +89,7 @@ seed:
 	cd server && uv run python seed.py
 
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type d -name ".ruff_cache" -exec rm -rf {} +
-	find . -type d -name ".pytest_cache" -exec rm -rf {} +
-	find . -type d -name "node_modules" -exec rm -rf {} +
+	@$(CLEAN_CMD)
 
 structure:
-	@tree -I "__pycache__|.git|.venv|venv|.ruff_cache|.pytest_cache|.mypy_cache|.vscode|.idea|.env|*.pyc|uv.lock|node_modules|dist"
+	@$(TREE_CMD)
