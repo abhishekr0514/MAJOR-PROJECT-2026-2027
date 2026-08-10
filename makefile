@@ -44,6 +44,9 @@ fl-client:
 frontend:
 	cd frontend && npm run dev
 
+generate-api:
+	cd frontend && npm run generate:api
+
 test:
 	cd server && uv run pytest tests/ -v -s
 

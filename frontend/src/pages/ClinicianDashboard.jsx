@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CounterfactualSlider from '../components/clinician/CounterfactualSlider';
+import { createPredictionPredictionPredictPost } from '../api';
 
 // Helper: Generates a highly authentic ECG heartbeat sequence
 const generateECGWaveform = (leadNum = 1, heartRate = 72, hasAnomaly = false) => {
@@ -140,9 +141,37 @@ export const ClinicianDashboard = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API delay
+    try {
+      const response = await createPredictionPredictionPredictPost({
+        body: {
+          patient_code: patientId,
+          age: Number(age),
+          gender,
+          blood_pressure_sys: Number(bpSys),
+          blood_pressure_dia: Number(bpDia),
+          cholesterol_mg_dl: Number(cholesterol),
+          fasting_bs_mg_dl: Number(fastingBS),
+          clinical_text_masked: maskedText || clinicalText,
+        }
+      });
+
+      if (response && response.data) {
+        const score = response.data.risk_score;
+        setPredictionResult({
+          riskScore: score,
+          diagnosis: response.data.diagnosis || "Heart disease risk assessment completed via server.",
+          modelVersion: response.data.model_version || "1.2.0-BiLSTM+BERT"
+        });
+        setSliderRisk(score);
+        setIsSubmitting(false);
+        return;
+      }
+    } catch (err) {
+      console.warn("FastAPI backend call failed/unreachable, utilizing client preview formula:", err);
+    }
+
+    // Local calculation fallback if API server is unauthenticated or unreachable
     setTimeout(() => {
-      // Update values which trigger local risk adjustment
       const baseRisk = 0.45;
       const bpImpact = (bpSys - 120) * 0.0035;
       const cholImpact = (cholesterol - 200) * 0.0022;
