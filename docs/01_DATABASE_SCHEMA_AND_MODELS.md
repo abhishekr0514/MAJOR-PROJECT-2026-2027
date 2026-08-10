@@ -248,8 +248,44 @@ To apply these models:
 
 ---
 
+## 🏗️ Repository Pattern & Domain Architecture Standards
+
+All database access MUST follow the **Repository Pattern** using Async SQLAlchemy 2.0. Feature modules in `server/app/features/<domain>/` follow a strict 5-layer domain folder structure:
+
+```
+server/app/features/<domain>/
+├── models.py        --> SQLAlchemy 2.0 ORM Table definitions
+├── schema.py        --> Pydantic v2 Request/Response validation schemas
+├── repository.py    --> Subclass of BaseRepository[SQLModelType] for DB access
+├── service.py       --> Business logic layer consuming repositories
+└── router.py        --> FastAPI endpoint controllers
+```
+
+### Generic Base Repository (`server/app/core/base_repository.py`)
+All feature repositories MUST subclass `BaseRepository[SQLModelType]` to inherit common async CRUD operations:
+
+```python
+from app.core.base_repository import BaseRepository
+from app.features.patients.models import Patient
+
+class PatientRepository(BaseRepository[Patient]):
+    def __init__(self, db: AsyncSession) -> None:
+        super().__init__(db, Patient)
+
+    # Add domain-specific query methods here
+    async def get_by_patient_code(self, patient_code: str) -> Patient | None:
+        return await self.get_one_by(patient_code=patient_code)
+```
+
+> [!IMPORTANT]
+> Services MUST NOT execute direct `select()` ORM queries or manipulate `AsyncSession` directly. All database access must be encapsulated inside repository classes.
+
+---
+
 ## ✅ Phase 1 Verification Checklist
-- [ ] All 6 models defined with strict type annotations
-- [ ] Registered in `server/app/core/models.py`
-- [ ] Alembic migration script generated without syntax errors
-- [ ] Database migrated cleanly (`make migrate`)
+- [x] All 6 models defined with strict type annotations
+- [x] Registered in `server/app/core/models.py`
+- [x] Subclass `BaseRepository[SQLModelType]` for data access layers
+- [x] Alembic migration script generated without syntax errors
+- [x] Database migrated cleanly (`make migrate`)
+

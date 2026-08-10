@@ -1,14 +1,17 @@
 """Generic base repository for common CRUD operations."""
 
 import uuid
-from typing import Any
+from typing import Any, Generic, TypeVar
 
-from app.core.database import Base
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.database import Base
 
-class BaseRepository[SQLModelType: Base]:
+SQLModelType = TypeVar("SQLModelType", bound=Base)
+
+
+class BaseRepository(Generic[SQLModelType]):
     """Abstract data-access layer — subclass per model.
 
     Provides common operations so feature repositories only need
