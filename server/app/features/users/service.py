@@ -104,8 +104,13 @@ async def admin_create_user(
 
 
 def generate_tokens(user: User) -> TokenPair:
-    """Generate an access + refresh token pair for *user*."""
-    payload = {"sub": user.email}
+    """Generate an access + refresh token pair for *user* supporting SUPER_ADMIN, HOSPITAL_ADMIN, and CLINICIAN."""
+    role_val = user.role.value if isinstance(user.role, Role) else str(user.role)
+    payload = {
+        "sub": user.email,
+        "role": role_val,
+        "hospital_id": str(user.hospital_id) if user.hospital_id else None,
+    }
     return TokenPair(
         access_token=create_access_token(payload),
         refresh_token=create_refresh_token(payload),
