@@ -57,3 +57,45 @@ async def get_patient_history(
         )
         for item in history
     ]
+
+
+from pydantic import BaseModel
+
+
+class MaskTextRequest(BaseModel):
+    text: str
+
+
+class MaskTextResponse(BaseModel):
+    raw_text: str
+    masked_text: str
+    engine: str
+
+
+@prediction_router.post(
+    "/mask-text",
+    response_model=MaskTextResponse,
+    summary="Scrub PII from clinical text notes using Member 2's spaCy NER model",
+)
+async def mask_text_endpoint(body: MaskTextRequest):
+    import sys
+    from pathlib import Path
+
+    root_dir = Path(__file__).resolve().parents[4]
+    if str(root_dir) not in sys.path:
+        sys.path.insert(0, str(root_dir))
+
+    try:
+        from client.privacy.ner_masker import NERMasker
+
+        masker = NERMasker()
+        masked = masker.mask_text(body.text)
+        engine = "spaCy Transformer (en_core_web_sm)"
+    except Exception as e:
+        import re
+
+        masked = re.sub(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", "[PATIENT_NAME]", body.text)
+        engine = f"Fallback ({e})"
+
+    return MaskTextResponse(raw_text=body.text, masked_text=masked, engine=engine)
+

@@ -24,18 +24,28 @@ class NERMasker:
             "ORG": "[HOSPITAL_NAME]",
         }
 
+        self.medical_whitelist: set[str] = {
+            "angina", "ischemic", "ischemia", "infarction", "dyspnea", "arrhythmia",
+            "hypertension", "hypotension", "tachycardia", "bradycardia", "stenosis",
+            "cardiomyopathy", "atherosclerosis", "edema", "syncope", "troponin", "st-segment"
+        }
+
     def mask_text(self, text: str) -> str:
-        """Scrub named entities from raw clinical text.
+        """Scrub named entities and structured PII from raw clinical text.
 
         Entities are processed in reverse order of their start character position
         to prevent index offsets from shifting during replacement.
         """
+        import re
+
+        # 1. spaCy NER on raw text (with medical terms whitelisted)
         doc = self.nlp(text)
         masked_text = text
 
-        # Sort entities in reverse position order to avoid offset shift
         entities = sorted(doc.ents, key=lambda e: e.start_char, reverse=True)
         for ent in entities:
+            if ent.text.lower() in self.medical_whitelist:
+                continue
             if ent.label_ in self.replacement_map:
                 placeholder = self.replacement_map[ent.label_]
                 masked_text = (
@@ -43,6 +53,24 @@ class NERMasker:
                     + placeholder
                     + masked_text[ent.end_char :]
                 )
+
+        # 2. Structured PII Scrubbing (Email, Phone, SSN, MRN)
+        masked_text = re.sub(
+            r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b",
+            "[EMAIL]",
+            masked_text,
+        )
+        masked_text = re.sub(
+            r"\b\d{3}[- ]?\d{2}[- ]?\d{4}\b",
+            "[SSN_ID]",
+            masked_text,
+        )
+        masked_text = re.sub(
+            r"(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}|\b\d{7,15}\b",
+            "[PHONE_NUMBER]",
+            masked_text,
+        )
+
         return masked_text
 
 

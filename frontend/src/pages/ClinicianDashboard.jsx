@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CounterfactualSlider from '../components/clinician/CounterfactualSlider';
-import { createPredictionPredictionPredictPost } from '../api';
+import { createPredictionPredictionPredictPost, maskTextEndpointPredictionMaskTextPost } from '../api';
 
 // Helper: Generates a highly authentic ECG heartbeat sequence
 const generateECGWaveform = (leadNum = 1, heartRate = 72, hasAnomaly = false) => {
@@ -142,8 +142,30 @@ export const ClinicianDashboard = () => {
     setEcgData(generateECGWaveform(activeLead, maxHR, sliderRisk > 0.6));
   }, [activeLead, maxHR, sliderRisk]);
 
+  const [nerEngine, setNerEngine] = useState("spaCy Transformer (en_core_web_sm)");
+
   useEffect(() => {
-    setMaskedText(simulateNERMasking(clinicalText));
+    let isCancelled = false;
+    const fetchNERMasking = async () => {
+      try {
+        const response = await maskTextEndpointPredictionMaskTextPost({
+          body: { text: clinicalText }
+        });
+        if (response && response.data && !isCancelled) {
+          setMaskedText(response.data.masked_text);
+          if (response.data.engine) setNerEngine(response.data.engine);
+          return;
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          setMaskedText(simulateNERMasking(clinicalText));
+          setNerEngine("Local Regex Preview");
+        }
+      }
+    };
+
+    fetchNERMasking();
+    return () => { isCancelled = true; };
   }, [clinicalText]);
 
   // Risk styling helpers
@@ -390,9 +412,14 @@ export const ClinicianDashboard = () => {
 
             {/* Anonymized NER Preview Box */}
             <div className="space-y-1.5 p-3 rounded-lg bg-slate-950/80 border border-slate-800">
-              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
-                Local Anonymization Preview (PII Masking)
-              </span>
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
+                  Local Anonymization Preview (PII Masking)
+                </span>
+                <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">
+                  {nerEngine}
+                </span>
+              </div>
               <p className="text-[11px] text-slate-300 font-mono leading-relaxed select-all">
                 {maskedText || <span className="text-slate-650 italic">No note provided to mask.</span>}
               </p>

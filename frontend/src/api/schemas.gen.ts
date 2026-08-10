@@ -285,6 +285,38 @@ export const HospitalResponseSchema = {
     description: 'Safe hospital representation.'
 } as const;
 
+export const MaskTextRequestSchema = {
+    properties: {
+        text: {
+            type: 'string',
+            title: 'Text'
+        }
+    },
+    type: 'object',
+    required: ['text'],
+    title: 'MaskTextRequest'
+} as const;
+
+export const MaskTextResponseSchema = {
+    properties: {
+        raw_text: {
+            type: 'string',
+            title: 'Raw Text'
+        },
+        masked_text: {
+            type: 'string',
+            title: 'Masked Text'
+        },
+        engine: {
+            type: 'string',
+            title: 'Engine'
+        }
+    },
+    type: 'object',
+    required: ['raw_text', 'masked_text', 'engine'],
+    title: 'MaskTextResponse'
+} as const;
+
 export const PredictionCreateSchemaSchema = {
     properties: {
         patient_code: {

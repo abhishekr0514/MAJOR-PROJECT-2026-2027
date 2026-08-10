@@ -1,11 +1,11 @@
 import { client } from './sdk.gen';
 
-// Configure the base URL for the Hey API fetch client
+// Set base URL to FastAPI backend
 client.setConfig({
   baseUrl: 'http://localhost:8000',
 });
 
-// Automatically inject JWT Bearer token if present in localStorage
+// Attach JWT token from localStorage on all outgoing requests
 client.interceptors.request.use((request) => {
   const token = localStorage.getItem('access_token') || localStorage.getItem('token');
   if (token) {
@@ -13,5 +13,3 @@ client.interceptors.request.use((request) => {
   }
   return request;
 });
-
-export { client };

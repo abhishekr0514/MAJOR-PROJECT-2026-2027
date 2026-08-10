@@ -71,6 +71,16 @@ export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
 
+export type MaskTextRequest = {
+    text: string;
+};
+
+export type MaskTextResponse = {
+    raw_text: string;
+    masked_text: string;
+    engine: string;
+};
+
 export type PredictionCreateSchema = {
     /**
      * Anonymized patient code (e.g. PAT-1042)
@@ -243,6 +253,14 @@ export type GetPatientHistoryPredictionHistoryPatientIdGetData = {
 export type GetPatientHistoryPredictionHistoryPatientIdGetResponse = (Array<PredictionResponseSchema>);
 
 export type GetPatientHistoryPredictionHistoryPatientIdGetError = (HTTPValidationError);
+
+export type MaskTextEndpointPredictionMaskTextPostData = {
+    body: MaskTextRequest;
+};
+
+export type MaskTextEndpointPredictionMaskTextPostResponse = (MaskTextResponse);
+
+export type MaskTextEndpointPredictionMaskTextPostError = (HTTPValidationError);
 
 export type FlStatusFederationStatusGetResponse = (FLStatusResponse);
 
