@@ -29,6 +29,7 @@
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
@@ -134,3 +135,152 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+/* ==========================================================================
+   LIGHT MODE DESIGN SYSTEM OVERRIDES (.light / [data-theme="light"])
+   ========================================================================== */
+
+.light body, html.light body {
+  background-color: #f1f5f9;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(244, 63, 94, 0.08) 0px, transparent 50%);
+  color: #0f172a;
+}
+
+.light .glass-panel, html.light .glass-panel {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+}
+
+.light .glass-card, html.light .glass-card {
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+}
+
+.light .glass-card:hover, html.light .glass-card:hover {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.18);
+  box-shadow: 0 12px 24px -8px rgba(15, 23, 42, 0.12);
+}
+
+.light .glass-input, html.light .glass-input {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(15, 23, 42, 0.18);
+  color: #0f172a;
+}
+
+.light .glass-input:focus, html.light .glass-input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+}
+
+.light .glass-button, html.light .glass-button {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.28) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: #047857;
+}
+
+.light .glass-button:hover, html.light .glass-button:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.28) 0%, rgba(5, 150, 105, 0.4) 100%);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+}
+
+/* Light mode text & background adjustments for slate containers */
+.light .bg-slate-950, html.light .bg-slate-950,
+.light .bg-slate-950\/90, html.light .bg-slate-950\/90,
+.light .bg-slate-950\/80, html.light .bg-slate-950\/80,
+.light .bg-slate-950\/70, html.light .bg-slate-950\/70,
+.light .bg-slate-950\/60, html.light .bg-slate-950\/60,
+.light .bg-slate-950\/40, html.light .bg-slate-950\/40 {
+  background-color: rgba(241, 245, 249, 0.95) !important;
+}
+
+.light .bg-slate-900, html.light .bg-slate-900,
+.light .bg-slate-900\/60, html.light .bg-slate-900\/60,
+.light .bg-slate-900\/40, html.light .bg-slate-900\/40 {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.light .bg-slate-850, html.light .bg-slate-850,
+.light .bg-slate-800, html.light .bg-slate-800,
+.light .bg-slate-800\/50, html.light .bg-slate-800\/50 {
+  background-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+.light .border-slate-900, html.light .border-slate-900,
+.light .border-slate-850, html.light .border-slate-850,
+.light .border-slate-800, html.light .border-slate-800,
+.light .border-slate-750, html.light .border-slate-750,
+.light .border-slate-700, html.light .border-slate-700 {
+  border-color: rgba(148, 163, 184, 0.35) !important;
+}
+
+.light .text-slate-100, html.light .text-slate-100,
+.light .text-slate-105, html.light .text-slate-105,
+.light .text-slate-200, html.light .text-slate-200,
+.light .text-slate-205, html.light .text-slate-205,
+.light .text-slate-300, html.light .text-slate-300,
+.light .text-slate-350, html.light .text-slate-350 {
+  color: #0f172a !important;
+}
+
+.light .text-slate-400, html.light .text-slate-400,
+.light .text-slate-450, html.light .text-slate-450,
+.light .text-slate-500, html.light .text-slate-500 {
+  color: #475569 !important;
+}
+
+/* Badge text colors for Light Mode */
+.light .risk-badge-low, html.light .risk-badge-low {
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.light .risk-badge-moderate, html.light .risk-badge-moderate {
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.light .risk-badge-high, html.light .risk-badge-high {
+  background: rgba(244, 63, 94, 0.15);
+  color: #be123c;
+  border-color: rgba(244, 63, 94, 0.4);
+}
+
+/* Light mode SVG Radial Gauges & Tooltip enhancements */
+.light circle[stroke="rgba(15, 23, 42, 0.9)"], html.light circle[stroke="rgba(15, 23, 42, 0.9)"],
+.light circle[stroke="rgba(15,23,42,0.9)"], html.light circle[stroke="rgba(15,23,42,0.9)"] {
+  stroke: rgba(203, 213, 225, 0.8) !important;
+}
+
+.light select option, html.light select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.light .recharts-default-tooltip, html.light .recharts-default-tooltip {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Light mode scrollbar */
+.light ::-webkit-scrollbar-track, html.light ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.light ::-webkit-scrollbar-thumb, html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+.light ::-webkit-scrollbar-thumb:hover, html.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+

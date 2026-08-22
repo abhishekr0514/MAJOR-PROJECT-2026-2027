@@ -9,7 +9,10 @@ import {
   ExternalLink,
   LogIn,
   LogOut,
-  CheckCircle2
+  CheckCircle2,
+  Sun,
+  Moon,
+  Monitor
 } from 'lucide-react';
 import ClinicianDashboard from './pages/ClinicianDashboard';
 import PatientPortal from './pages/PatientPortal';
@@ -21,6 +24,47 @@ export default function App() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [userEmail, setUserEmail] = useState(localStorage.getItem('user_email') || '');
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('access_token'));
+
+  // Theme state: 'system', 'light', 'dark'
+  const [themeMode, setThemeMode] = useState(() => {
+    return localStorage.getItem('medshield_theme_mode') || 'system';
+  });
+
+  // Apply theme to document root & handle system preference updates
+  useEffect(() => {
+    const applyTheme = () => {
+      let isDark = false;
+      if (themeMode === 'system') {
+        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      } else {
+        isDark = themeMode === 'dark';
+      }
+
+      const root = document.documentElement;
+      if (isDark) {
+        root.classList.remove('light');
+        root.classList.add('dark');
+        root.setAttribute('data-theme', 'dark');
+      } else {
+        root.classList.remove('dark');
+        root.classList.add('light');
+        root.setAttribute('data-theme', 'light');
+      }
+    };
+
+    applyTheme();
+    localStorage.setItem('medshield_theme_mode', themeMode);
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemChange = () => {
+      if (themeMode === 'system') {
+        applyTheme();
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleSystemChange);
+    return () => mediaQuery.removeEventListener('change', handleSystemChange);
+  }, [themeMode]);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -75,7 +119,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* Global connection telemetry indicators & Auth status */}
+        {/* Global connection telemetry indicators, Theme selector & Auth status */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/40 border border-slate-850 text-xs text-slate-350 select-none">
             <Lock className="w-3.5 h-3.5 text-emerald-400" />
@@ -84,7 +128,49 @@ export default function App() {
 
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/40 border border-slate-850 text-xs text-slate-350 select-none">
             <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-            <span>FL Convergence Round #5</span>
+            <span>FL Round #5</span>
+          </div>
+
+          {/* System-Aware Theme Switcher Toggle */}
+          <div className="flex items-center p-0.5 rounded-full bg-slate-950/40 border border-slate-850 text-xs select-none">
+            <button
+              onClick={() => setThemeMode('system')}
+              title="System Theme (Follows OS Settings)"
+              className={`p-1.5 rounded-full transition-all flex items-center gap-1 text-[11px] ${
+                themeMode === 'system'
+                  ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 border border-transparent'
+              }`}
+            >
+              <Monitor className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">System</span>
+            </button>
+
+            <button
+              onClick={() => setThemeMode('light')}
+              title="Light Mode"
+              className={`p-1.5 rounded-full transition-all flex items-center gap-1 text-[11px] ${
+                themeMode === 'light'
+                  ? 'bg-amber-500/20 text-amber-500 font-bold border border-amber-500/30 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 border border-transparent'
+              }`}
+            >
+              <Sun className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Light</span>
+            </button>
+
+            <button
+              onClick={() => setThemeMode('dark')}
+              title="Dark Mode"
+              className={`p-1.5 rounded-full transition-all flex items-center gap-1 text-[11px] ${
+                themeMode === 'dark'
+                  ? 'bg-indigo-500/20 text-indigo-400 font-bold border border-indigo-500/30 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 border border-transparent'
+              }`}
+            >
+              <Moon className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Dark</span>
+            </button>
           </div>
 
           {/* Authentication Badge */}
