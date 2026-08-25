@@ -159,6 +159,29 @@ def load_hospital_dataloaders(
     )
 
 
+def create_dummy_dataloaders(
+    num_samples: int = 100, batch_size: int = 16
+) -> tuple[DataLoader, DataLoader]:
+    """Compatibility wrapper for unit test dataloaders."""
+    try:
+        return load_hospital_dataloaders(hospital_id="hospital_alpha", batch_size=batch_size)
+    except Exception:
+        ecg_tensor = torch.randn(num_samples, 12, 1000)
+        input_ids = torch.randint(1, 100, (num_samples, 32))
+        attn_mask = torch.ones(num_samples, 32, dtype=torch.long)
+        tabular_tensor = torch.randn(num_samples, 10)
+        labels_tensor = torch.randint(0, 2, (num_samples,))
+
+        dataset = TensorDataset(ecg_tensor, input_ids, attn_mask, tabular_tensor, labels_tensor)
+        train_size = int(0.8 * num_samples)
+        val_size = num_samples - train_size
+
+        train_ds, val_ds = torch.utils.data.random_split(dataset, [train_size, val_size])
+        return DataLoader(train_ds, batch_size=batch_size, shuffle=True), DataLoader(
+            val_ds, batch_size=batch_size
+        )
+
+
 class MedShieldFLClient(fl.client.NumPyClient):
     """Flower NumPyClient implementation for local hospital node FL training."""
 

@@ -33,21 +33,35 @@ async def create_prediction(
 
 
 @prediction_router.get(
-    "/history/{patient_id}",
+    "/history/{patient_identifier}",
     response_model=list[PredictionResponseSchema],
     summary="Get prediction history for a patient",
 )
 async def get_patient_history(
-    patient_id: uuid.UUID,
+    patient_identifier: str,
     _: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    repo = PredictionRepository(db)
-    history = await repo.get_history_by_patient(patient_id)
+    from app.features.patients.repository import PatientRepository
+
+    patient_repo = PatientRepository(db)
+    pred_repo = PredictionRepository(db)
+
+    patient_obj = None
+    try:
+        pid = uuid.UUID(patient_identifier)
+        patient_obj = await patient_repo.get_by_id(pid)
+    except ValueError:
+        patient_obj = await patient_repo.get_one_by(patient_code=patient_identifier)
+
+    if not patient_obj:
+        return []
+
+    history = await pred_repo.get_history_by_patient(patient_obj.id)
     return [
         PredictionResponseSchema(
             id=item.id,
-            patient_code=str(item.patient_id),
+            patient_code=patient_obj.patient_code,
             risk_score=item.risk_score,
             diagnosis=item.diagnosis,
             counterfactual_recommendations=item.xai_counterfactuals,

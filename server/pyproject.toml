@@ -32,3 +32,6 @@ asyncio_mode = "auto"
 [[tool.uv.index]]
 url = "https://download.pytorch.org/whl/cpu"
 
+[tool.ruff.lint]
+ignore = ["E402"]
+

@@ -12,7 +12,6 @@ except ImportError:
 
 if TORCH_AVAILABLE:
     import torch.nn as nn
-    import numpy as np
     import pandas as pd
 
     from client.explainability.causal_graph import CausalInferenceEngine
@@ -21,7 +20,7 @@ if TORCH_AVAILABLE:
     from client.ml_models.gnn_fusion import GNNMultimodalFusion
     from client.ml_models.lstm_model import ECGBiLSTM
     from client.ml_models.tabular_model import TabularEncoder
-    from client.ml_models.text_model import BioClinicalBERTFeatureExtractor, ClinicalTextBERT
+    from client.ml_models.text_model import BioClinicalBERTFeatureExtractor
 
     class MockModel(nn.Module):
         def __init__(self) -> None:

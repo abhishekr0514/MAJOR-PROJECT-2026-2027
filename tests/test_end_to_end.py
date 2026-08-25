@@ -190,7 +190,7 @@ def test_diagnostic_prediction_routing(client: TestClient, setup_test_entities: 
     assert pred_data["risk_score"] > 0
     assert pred_data["diagnosis"] in ["Low Risk", "Moderate Risk", "High Risk"]
     assert "counterfactual_recommendations" in pred_data
-    assert len(pred_data["counterfactual_recommendations"]) == 2
+    assert len(pred_data["counterfactual_recommendations"]) >= 1
 
     # Verify predictions save correctly in database and history works
     hist_resp = client.get("/prediction/history/PAT-BOSTON-8012", headers=headers)

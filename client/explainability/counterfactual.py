@@ -5,7 +5,7 @@ recommending specific clinical parameter target changes (e.g. reducing systolic 
 to transition heart disease diagnostic risk from High to Low.
 """
 
-from typing import Any, Callable
+from typing import Any
 import pandas as pd
 
 try:
