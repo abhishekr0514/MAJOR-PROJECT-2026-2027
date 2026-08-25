@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import warnings
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Sequence
+
+warnings.filterwarnings("ignore")
 
 import flwr as fl
 import numpy as np
@@ -319,9 +322,6 @@ def main() -> None:
         val_loader=val_loader,
     )
 
-    print(
-        f"[Client Node {args.hospital_id}] Connecting to FL server at {args.server}..."
-    )
     fl.client.start_client(server_address=args.server, client=client.to_client())
 
 
