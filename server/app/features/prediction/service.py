@@ -65,6 +65,8 @@ async def process_prediction(
 
     # 3. Dynamic XAI Counterfactual Generation & Causal Impact Estimation
     try:
+        from pathlib import Path
+
         import pandas as pd
         from client.explainability.causal_graph import CausalInferenceEngine
         from client.explainability.counterfactual import CounterfactualExplainer
@@ -94,36 +96,19 @@ async def process_prediction(
 
         # Dynamic DoWhy causal graph ATE estimation
         causal_engine = CausalInferenceEngine()
-        df_dummy = pd.DataFrame(
-            [
-                {
-                    "blood_pressure_sys": 150.0,
-                    "cholesterol_mg_dl": 240.0,
-                    "diagnosis": 1,
-                    "age": 60,
-                },
-                {
-                    "blood_pressure_sys": 120.0,
-                    "cholesterol_mg_dl": 180.0,
-                    "diagnosis": 0,
-                    "age": 45,
-                },
-                {
-                    "blood_pressure_sys": 160.0,
-                    "cholesterol_mg_dl": 260.0,
-                    "diagnosis": 1,
-                    "age": 65,
-                },
-                {
-                    "blood_pressure_sys": 115.0,
-                    "cholesterol_mg_dl": 170.0,
-                    "diagnosis": 0,
-                    "age": 40,
-                },
-            ]
+        csv_path = (
+            Path(__file__).resolve().parents[3]
+            / "client"
+            / "data"
+            / "hospital_alpha_data.csv"
         )
+        if csv_path.exists():
+            df_causal = pd.read_csv(csv_path)
+        else:
+            df_causal = pd.DataFrame([patient_dict])
+
         insights = causal_engine.generate_causal_insights(
-            df_dummy, patient_features=patient_dict
+            df_causal, patient_features=patient_dict
         )
         causal_impact = {
             item["factor"]: item["causal_effect_value"] for item in insights
