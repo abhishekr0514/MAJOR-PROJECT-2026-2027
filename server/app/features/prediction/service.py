@@ -49,25 +49,19 @@ async def process_prediction(
         )
         patient = await patient_repo.create(patient)
 
-    # 2. Diagnostic risk score calculation
-    risk_score = 0.20
-    if data.blood_pressure_sys > 140 or data.cholesterol_mg_dl > 220:
-        risk_score += 0.35
-    if data.age > 55:
-        risk_score += 0.25
-    if (
-        "angina" in data.clinical_text_masked.lower()
-        or "chest pain" in data.clinical_text_masked.lower()
-    ):
-        risk_score += 0.15
+    # 2. Live PyTorch Model Diagnostic Risk Calculation
+    from app.features.prediction.inference import run_live_model_inference
 
-    risk_score = min(round(risk_score, 2), 0.99)
-    if risk_score >= 0.70:
-        diagnosis = "High Risk"
-    elif risk_score >= 0.40:
-        diagnosis = "Moderate Risk"
-    else:
-        diagnosis = "Low Risk"
+    risk_score, diagnosis = run_live_model_inference(
+        age=data.age,
+        gender=data.gender,
+        bp_sys=data.blood_pressure_sys,
+        bp_dia=data.blood_pressure_dia,
+        cholesterol=data.cholesterol_mg_dl,
+        fasting_bs=data.fasting_bs_mg_dl,
+        clinical_text=data.clinical_text_masked,
+        ecg_path=data.ecg_signal_file_path,
+    )
 
     counterfactuals = [
         {
