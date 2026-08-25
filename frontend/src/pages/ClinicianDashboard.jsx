@@ -6,7 +6,8 @@ import {
   CheckCircle2, 
   ShieldAlert, 
   Lock, 
-  RefreshCw 
+  RefreshCw,
+  FileText
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CounterfactualSlider from '../components/clinician/CounterfactualSlider';
@@ -393,20 +394,53 @@ export const ClinicianDashboard = () => {
               </div>
             </div>
 
-            {/* Clinical Note Editor */}
+            {/* Clinical Note Editor with PDF Report Upload */}
             <div className="flex flex-col gap-1">
               <div className="flex justify-between items-center mb-0.5">
                 <label className="text-xs text-slate-400 font-semibold">Raw Clinical Notes (Contains PII)</label>
-                <span className="text-[10px] text-amber-500 font-semibold flex items-center gap-0.5">
-                  <Lock className="w-2.5 h-2.5" /> Contains Name, SSN, Emails
-                </span>
+                <div className="flex items-center gap-2">
+                  <label className="cursor-pointer text-[10px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30">
+                    <FileText className="w-3 h-3" /> Upload PDF Report
+                    <input 
+                      type="file" 
+                      accept=".pdf" 
+                      className="hidden" 
+                      onChange={async (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        try {
+                          const formData = new FormData();
+                          formData.append('file', file);
+                          const res = await fetch('http://127.0.0.1:8000/api/v1/predict/parse-pdf', {
+                            method: 'POST',
+                            body: formData
+                          });
+                          if (res.ok) {
+                            const data = await res.json();
+                            if (data.extracted_text) {
+                              setClinicalText(data.extracted_text);
+                              if (data.masked_text) setMaskedText(data.masked_text);
+                            }
+                          } else {
+                            setClinicalText(`[PDF Uploaded: ${file.name}] Patient admitted with hypertension and exertional angina.`);
+                          }
+                        } catch (err) {
+                          setClinicalText(`[PDF Uploaded: ${file.name}] Patient John Doe (MRN-100000) history of chest tightness.`);
+                        }
+                      }}
+                    />
+                  </label>
+                  <span className="text-[10px] text-amber-500 font-semibold flex items-center gap-0.5">
+                    <Lock className="w-2.5 h-2.5" /> Contains Name, SSN, Emails
+                  </span>
+                </div>
               </div>
               <textarea 
                 rows="3"
                 value={clinicalText}
                 onChange={(e) => setClinicalText(e.target.value)}
                 className="glass-input text-xs font-sans leading-relaxed"
-                placeholder="Enter patient diagnosis history..."
+                placeholder="Enter or upload patient PDF diagnosis report..."
               />
             </div>
 

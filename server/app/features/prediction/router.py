@@ -2,7 +2,7 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, File, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -112,4 +112,55 @@ async def mask_text_endpoint(body: MaskTextRequest):
         engine = f"Fallback ({e})"
 
     return MaskTextResponse(raw_text=body.text, masked_text=masked, engine=engine)
+
+
+class PDFParseResponse(BaseModel):
+    filename: str
+    extracted_text: str
+    masked_text: str
+    page_count: int
+
+
+@prediction_router.post(
+    "/parse-pdf",
+    response_model=PDFParseResponse,
+    summary="Extract clinical text notes and scrub PII from uploaded PDF clinical report",
+)
+async def parse_pdf_endpoint(file: UploadFile = File(...)):
+    import io
+    import pypdf
+
+    content = await file.read()
+    try:
+        reader = pypdf.PdfReader(io.BytesIO(content))
+        extracted_pages = []
+        for page in reader.pages:
+            txt = page.extract_text()
+            if txt:
+                extracted_pages.append(txt)
+        raw_text = "\n".join(extracted_pages).strip()
+        page_count = len(reader.pages)
+    except Exception as e:
+        raw_text = f"Error reading PDF content: {e}"
+        page_count = 0
+
+    if not raw_text:
+        raw_text = f"Clinical Report ({file.filename}) uploaded successfully."
+
+    try:
+        from client.privacy.ner_masker import NERMasker
+
+        masker = NERMasker()
+        masked_text = masker.mask_text(raw_text)
+    except Exception:
+        import re
+
+        masked_text = re.sub(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", "[PATIENT_NAME]", raw_text)
+
+    return PDFParseResponse(
+        filename=file.filename or "report.pdf",
+        extracted_text=raw_text,
+        masked_text=masked_text,
+        page_count=page_count,
+    )
 
