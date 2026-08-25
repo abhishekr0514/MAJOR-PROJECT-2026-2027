@@ -176,7 +176,8 @@ export const ClinicianDashboard = () => {
     return { label: 'CRITICAL CARDIOVASCULAR RISK', color: 'text-rose-400', badge: 'risk-badge-high', border: 'border-rose-500/20' };
   };
 
-  const riskMeta = getRiskDetails(sliderRisk);
+  // riskMeta drives the main prediction panel (always from latest model output)
+  const riskMeta = getRiskDetails(predictionResult.riskScore);
 
   const handlePredict = async (e) => {
     e.preventDefault();
@@ -213,16 +214,28 @@ export const ClinicianDashboard = () => {
 
     // Local calculation fallback if API server is unauthenticated or unreachable
     setTimeout(() => {
-      const baseRisk = 0.45;
-      const bpImpact = (bpSys - 120) * 0.0035;
-      const cholImpact = (cholesterol - 200) * 0.0022;
-      const anginaImpact = exerciseAngina ? 0.15 : 0;
-      const ageImpact = (age - 50) * 0.004;
+      const baseRisk = 0.40;
+      const bpImpact = (bpSys - 120) * 0.003;
+      const cholImpact = (cholesterol - 200) * 0.0018;
+      const anginaImpact = exerciseAngina ? 0.12 : 0;
+      const ageImpact = (age - 50) * 0.003;
 
-      const score = Math.max(0.08, Math.min(0.96, baseRisk + bpImpact + cholImpact + anginaImpact + ageImpact));
-      const diagnosisText = score > 0.6 
+      const lowerText = (clinicalText || "").toLowerCase();
+      const hasNegation = ["zero", "no ", "denies", "without", "normal", "asymptomatic", "negative"].some(n => lowerText.includes(n));
+      
+      let textImpact = 0;
+      if (hasNegation || lowerText.includes("active") || lowerText.includes("routine checkup") || lowerText.includes("healthy")) {
+        textImpact -= 0.42;
+      }
+      if (!hasNegation && (lowerText.includes("chest pain") || lowerText.includes("angina") || lowerText.includes("dyspnea") || lowerText.includes("shortness of breath"))) {
+        textImpact += 0.25;
+      }
+
+      const rawScore = baseRisk + bpImpact + cholImpact + anginaImpact + ageImpact + textImpact;
+      const score = Number(Math.max(0.08, Math.min(0.96, rawScore)).toFixed(2));
+      const diagnosisText = score >= 0.65 
         ? "Positive Heart Disease risk signature detected. Significant anomalies noted in ECG (unstable ST segment)." 
-        : "Heart disease risk markers are within stable boundaries. Follow lifestyle parameters.";
+        : (score >= 0.35 ? "Moderate Risk: Elevated blood pressure or borderline lifestyle metrics." : "Heart disease risk markers are within stable boundaries. Clinical notes indicate normal activity.");
 
       setPredictionResult({
         riskScore: score,
@@ -231,7 +244,7 @@ export const ClinicianDashboard = () => {
       });
       setSliderRisk(score);
       setIsSubmitting(false);
-    }, 850);
+    }, 400);
   };
 
   const handleSliderRecalculate = (data) => {
@@ -490,7 +503,7 @@ export const ClinicianDashboard = () => {
                 Risk Gauge
               </h3>
 
-              {/* SVG Radial Gauge */}
+              {/* SVG Radial Gauge — always shows model prediction, not what-if slider */}
               <div className="relative w-44 h-44 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-95" viewBox="0 0 100 100">
                   <circle 
@@ -500,10 +513,10 @@ export const ClinicianDashboard = () => {
                   />
                   <circle 
                     cx="50" cy="50" r="40" 
-                    stroke={sliderRisk > 0.65 ? '#f43f5e' : (sliderRisk > 0.35 ? '#f59e0b' : '#10b981')} 
+                    stroke={predictionResult.riskScore > 0.65 ? '#f43f5e' : (predictionResult.riskScore > 0.35 ? '#f59e0b' : '#10b981')} 
                     strokeWidth="8" 
                     strokeDasharray={251.2}
-                    strokeDashoffset={251.2 * (1 - sliderRisk)}
+                    strokeDashoffset={251.2 * (1 - predictionResult.riskScore)}
                     strokeLinecap="round"
                     className="transition-all duration-700 ease-out" 
                     fill="transparent" 
@@ -511,7 +524,7 @@ export const ClinicianDashboard = () => {
                 </svg>
                 <div className="absolute flex flex-col items-center justify-center">
                   <span className="text-3xl font-black text-slate-105">
-                    {(sliderRisk * 100).toFixed(0)}%
+                    {(predictionResult.riskScore * 100).toFixed(0)}%
                   </span>
                   <span className="text-[10px] text-slate-500 font-extrabold tracking-widest uppercase mt-0.5">
                     ECG+Tabular

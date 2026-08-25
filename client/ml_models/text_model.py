@@ -77,6 +77,14 @@ class BioClinicalBERTFeatureExtractor(_TorchBase):
         else:
             self.projection = nn.Identity()
 
+        # Fallback trainable embedding: encodes spaCy-quantized word IDs (0..9000) -> 96-dim
+        # Used when Bio_ClinicalBERT is not available (no transformers download needed)
+        gen = torch.Generator()
+        gen.manual_seed(42)
+        embed_weight = torch.randn(9001, 96, generator=gen) * 0.1
+        self._fallback_embed = nn.Embedding(9001, 96, padding_idx=0)
+        self._fallback_embed.weight = nn.Parameter(embed_weight, requires_grad=True)
+
     def forward(
         self,
         input_ids: torch.Tensor,
@@ -111,9 +119,25 @@ class BioClinicalBERTFeatureExtractor(_TorchBase):
             outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
             cls_output = outputs.last_hidden_state[:, 0, :]  # CLS token embedding
         else:
-            # Fallback mock representation for environments where pretrained weights aren't pre-cached
+            # Semantic fallback using trainable embedding over spaCy-quantized word IDs.
+            # _fallback_embed is registered in __init__ and saved/loaded with state_dict.
             batch_size = input_ids.size(0)
-            cls_output = torch.zeros(batch_size, self.bert_hidden_size, device=input_ids.device)
+            device = input_ids.device
+
+            # (batch, seq_len, 96) — different clinical texts produce different vectors
+            token_embeds = self._fallback_embed(input_ids.clamp(0, 9000))
+            # Masked mean pooling over non-padding tokens
+            mask_f = attention_mask.float().unsqueeze(-1)  # (batch, seq, 1)
+            sum_embeds = (token_embeds * mask_f).sum(dim=1)  # (batch, 96)
+            n_tokens = mask_f.sum(dim=1).clamp(min=1.0)  # (batch, 1)
+            cls_output = sum_embeds / n_tokens  # (batch, 96)
+
+            # Zero-pad 96 -> bert_hidden_size (768) for projection layer compatibility
+            if cls_output.size(-1) < self.bert_hidden_size:
+                pad = torch.zeros(batch_size, self.bert_hidden_size - cls_output.size(-1), device=device)
+                cls_output = torch.cat([cls_output, pad], dim=-1)
+            else:
+                cls_output = cls_output[:, :self.bert_hidden_size]
 
         embed: torch.Tensor = self.projection(cls_output)
         return embed
