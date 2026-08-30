@@ -1,0 +1,25 @@
+[project]
+name = "major-project-2026-2027"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Abhishek Ravi", email = "abhishek.r0605@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "flwr>=1.35.0",
+    "matplotlib>=3.11.1",
+    "numpy>=2.5.2",
+    "pandas>=3.0.5",
+    "scikit-learn>=1.9.0",
+    "spacy>=3.8.16",
+    "torch>=2.13.0",
+]
+
+[project.scripts]
+major-project-2026-2027 = "major_project_2026_2027:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
