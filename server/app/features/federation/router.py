@@ -1,8 +1,5 @@
 """FastAPI Router for Federated Learning management."""
 
-from fastapi import APIRouter, Depends, status
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.database import get_db
 from app.features.federation.schema import (
     FLStartRoundRequest,
@@ -13,6 +10,8 @@ from app.features.federation.service import get_fl_status, start_fl_round
 from app.features.users.dependencies import get_current_active_user
 from app.features.users.models import Role, User
 from app.features.users.permissions import RoleChecker
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 federation_router = APIRouter()
 _require_super_admin = RoleChecker([Role.SUPER_ADMIN])

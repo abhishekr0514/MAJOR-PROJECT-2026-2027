@@ -1,0 +1,9 @@
+{
+    "model_type": "MedShieldDiagnosticNet",
+    "ecg_channels": 12,
+    "tab_features": 2,
+    "age_norm_mean": 62.34842666360979,
+    "age_norm_std": 31.37801251692527,
+    "sex_mapping": "Female=1, Male=0",
+    "label_mapping": "Class 0 = NormalSR, Class 1 = Abnormal"
+}

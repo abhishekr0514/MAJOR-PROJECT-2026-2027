@@ -1,13 +1,12 @@
 """Repository layer for prediction persistence."""
 
 import uuid
-from typing import Sequence
-
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from collections.abc import Sequence
 
 from app.core.base_repository import BaseRepository
 from app.features.prediction.models import Prediction
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class PredictionRepository(BaseRepository[Prediction]):

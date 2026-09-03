@@ -122,3 +122,4 @@ Thumbs.db
 # Project specific
 /server/.env
 /client/.env
+client/data/ptbxl_ecg_100hz.npy

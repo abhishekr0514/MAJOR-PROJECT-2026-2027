@@ -6,14 +6,14 @@ import unittest
 # Try importing torch and the models
 try:
     import torch
+
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
 
 if TORCH_AVAILABLE:
-    import torch.nn as nn
-    import numpy as np
     import pandas as pd
+    from torch import nn
 
     from client.explainability.causal_graph import CausalInferenceEngine
     from client.explainability.counterfactual import CounterfactualExplainer
@@ -21,7 +21,9 @@ if TORCH_AVAILABLE:
     from client.ml_models.gnn_fusion import GNNMultimodalFusion
     from client.ml_models.lstm_model import ECGBiLSTM
     from client.ml_models.tabular_model import TabularEncoder
-    from client.ml_models.text_model import BioClinicalBERTFeatureExtractor, ClinicalTextBERT
+    from client.ml_models.text_model import (
+        BioClinicalBERTFeatureExtractor,
+    )
 
     class MockModel(nn.Module):
         def __init__(self) -> None:
@@ -109,7 +111,9 @@ class TestMLModels(unittest.TestCase):
 
     @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch environment not present")
     def test_gnn_fusion_forward(self):
-        fusion = GNNMultimodalFusion(ecg_dim=128, text_dim=128, tab_dim=64, num_classes=2)
+        fusion = GNNMultimodalFusion(
+            ecg_dim=128, text_dim=128, tab_dim=64, num_classes=2
+        )
         fusion.eval()
         ecg_emb = torch.randn(4, 128)
         text_emb = torch.randn(4, 128)
@@ -166,15 +170,19 @@ class TestMLModels(unittest.TestCase):
 
     @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch environment not present")
     def test_causal_inference_engine(self):
-        df = pd.DataFrame({
-            "age": [50, 60, 70, 55],
-            "blood_pressure_sys": [120, 140, 160, 130],
-            "cholesterol_mg_dl": [200, 240, 280, 210],
-            "smoking": [0, 1, 1, 0],
-            "heart_disease": [0, 1, 1, 0],
-        })
+        df = pd.DataFrame(
+            {
+                "age": [50, 60, 70, 55],
+                "blood_pressure_sys": [120, 140, 160, 130],
+                "cholesterol_mg_dl": [200, 240, 280, 210],
+                "smoking": [0, 1, 1, 0],
+                "heart_disease": [0, 1, 1, 0],
+            }
+        )
         engine = CausalInferenceEngine()
-        res = engine.estimate_causal_effect(df, treatment="smoking", outcome="heart_disease")
+        res = engine.estimate_causal_effect(
+            df, treatment="smoking", outcome="heart_disease"
+        )
         self.assertIn("causal_effect_value", res)
         insights = engine.generate_causal_insights(df)
         self.assertGreater(len(insights), 0)
@@ -182,7 +190,9 @@ class TestMLModels(unittest.TestCase):
 
 if __name__ == "__main__":
     if not TORCH_AVAILABLE:
-        print("INFO: PyTorch package is not installed in the global Python 3.13 environment.")
+        print(
+            "INFO: PyTorch package is not installed in the global Python 3.13 environment."
+        )
         print("Code structure and syntax static checks passed.")
         sys.exit(0)
     unittest.main()

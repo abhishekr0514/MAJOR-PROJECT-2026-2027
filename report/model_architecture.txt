@@ -1,0 +1,66 @@
+====================================================
+MEDSHIELD ARCHITECTURE
+====================================================
+
+INPUT 1 - ECG
+Shape:
+12 leads x 1000 samples
+
+        | v
+
+ECGBiLSTM
+
+        | v
+
+128-dimensional ECG embedding
+
+
+INPUT 2 - TABULAR
+Features:
+Age
+Sex_encoded
+
+        | v
+
+TabularEncoder
+
+        | v
+
+64-dimensional tabular embedding
+
+
+INPUT 3 - CLINICAL TEXT
+
+Not available in PTB-XL experiment.
+Text pipeline exists separately.
+
+        | v
+
+Projection to common dimension
+
+        | v
+
+Graph:
+ECG node
+Text node
+Tabular node
+
+        | v
+
+GAT Layer 1
+
+        | v
+
+GAT Layer 2
+
+        | v
+
+Fusion classifier
+
+        | v
+
+2 output logits
+
+        | v
+
+Predicted class

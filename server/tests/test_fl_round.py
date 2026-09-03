@@ -4,7 +4,6 @@ import multiprocessing
 import time
 
 import flwr as fl
-
 from app.features.federation.fl_server import start_fl_server
 from fl_client import MedShieldFLClient, create_dummy_dataloaders
 

@@ -2,8 +2,6 @@
 
 from datetime import datetime, timezone
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.features.federation.models import FLRound
 from app.features.federation.repository import FLRoundRepository
 from app.features.federation.schema import (
@@ -11,6 +9,7 @@ from app.features.federation.schema import (
     FLStartRoundResponse,
     FLStatusResponse,
 )
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def get_fl_status(db: AsyncSession) -> FLStatusResponse:

@@ -9,7 +9,8 @@ from __future__ import annotations
 try:
     # pyrefly: ignore [missing-import]
     import torch
-    import torch.nn as nn
+    from torch import nn
+
     _TorchBase = nn.Module
     TORCH_AVAILABLE = True
 except ImportError:
@@ -31,7 +32,7 @@ class TabularEncoder(_TorchBase):
 
     def __init__(
         self,
-        num_features: int = 10,
+        num_features: int = 2,
         hidden_dim: int = 64,
         output_dim: int = 64,
         dropout: float = 0.2,
@@ -56,6 +57,8 @@ class TabularEncoder(_TorchBase):
         self.dropout_rate = dropout
         self.cat_cardinalities = cat_cardinalities or {}
 
+        print(f"[TabularEncoder] Input features: {self.num_features}")
+
         total_input_dim = num_features
         self.cat_embeddings = nn.ModuleDict()
         if self.cat_cardinalities:
@@ -68,16 +71,18 @@ class TabularEncoder(_TorchBase):
         self.net = nn.Sequential(
             nn.Linear(total_input_dim, hidden_dim),
             nn.BatchNorm1d(hidden_dim),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, output_dim),
-            nn.ReLU(),
+            nn.BatchNorm1d(output_dim),
+            nn.GELU(),
         )
 
     def forward(
         self,
         x: torch.Tensor,
         cat_x: dict[str, torch.Tensor] | None = None,
+        verbose: bool = False,
     ) -> torch.Tensor:
         """Forward pass for tabular feature data.
 
@@ -85,10 +90,14 @@ class TabularEncoder(_TorchBase):
             x: Input feature tensor of shape (batch_size, num_features).
             cat_x: Optional dictionary of categorical feature integer tensors,
                 each of shape (batch_size,).
+            verbose: Enable diagnostic logging.
 
         Returns:
             torch.Tensor: Encoded tabular embedding tensor of shape (batch_size, output_dim).
         """
+        if verbose:
+            print(f"[TabularEncoder] Input shape: {tuple(x.shape)}")
+
         if x.dim() != 2:
             raise ValueError(
                 f"Expected 2D input tensor of shape (batch_size, num_features), "
@@ -114,5 +123,17 @@ class TabularEncoder(_TorchBase):
         else:
             combined_x = x
 
-        out: torch.Tensor = self.net(combined_x)
+        if combined_x.size(0) == 1 and self.training:
+            self.net[1].eval()
+            self.net[5].eval()
+            out: torch.Tensor = self.net(combined_x)
+            self.net[1].train()
+            self.net[5].train()
+        elif combined_x.size(0) == 1:
+            out = self.net(combined_x)
+        else:
+            out = self.net(combined_x)
+
+        if verbose:
+            print(f"[TabularEncoder] Output shape: {tuple(out.shape)}")
         return out

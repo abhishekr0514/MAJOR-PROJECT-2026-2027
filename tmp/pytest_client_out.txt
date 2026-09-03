@@ -1,0 +1,21 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\MAJOR-PROJECT-2026-2027\client
+configfile: pyproject.toml
+plugins: anyio-4.12.1, langsmith-0.8.3
+collected 15 items
+
+client\tests\test_ml_models.py ............                              [ 80%]
+client\tests\test_xai.py ...                                             [100%]
+
+============================== warnings summary ===============================
+<frozen importlib._bootstrap>:241
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+<frozen importlib._bootstrap>:241
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 15 passed, 2 warnings in 17.02s =======================
+
+sys:1: DeprecationWarning: builtin type swigvarlink has no __module__ attribute

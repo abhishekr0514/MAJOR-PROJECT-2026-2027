@@ -1,8 +1,5 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
 from app.core.config import settings
 from app.core.database import engine
 from app.features.federation.router import federation_router
@@ -10,6 +7,8 @@ from app.features.hospitals.router import hospital_router
 from app.features.prediction.router import prediction_router
 from app.features.users.auth_router import auth_router
 from app.features.users.router import user_router
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 
 @asynccontextmanager

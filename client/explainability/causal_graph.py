@@ -5,12 +5,14 @@ assumptions and estimates Average Treatment Effects (ATE) for target risk factor
 """
 
 from typing import Any
+
 import numpy as np
 import pandas as pd
 
 try:
     import dowhy
     from dowhy import CausalModel
+
     DOWHY_AVAILABLE = True
 except ImportError:
     dowhy = None
@@ -76,7 +78,9 @@ class CausalInferenceEngine:
                     outcome=outcome,
                     graph=self.causal_graph_dot,
                 )
-                identified_estimand = model.identify_effect(proceed_when_unidentifiable=True)
+                identified_estimand = model.identify_effect(
+                    proceed_when_unidentifiable=True
+                )
                 causal_estimate = model.estimate_effect(
                     identified_estimand,
                     method_name=method_name,
@@ -89,8 +93,8 @@ class CausalInferenceEngine:
                     "method": method_name,
                     "engine": "DoWhy",
                 }
-            except Exception:
-                pass  # Fallback to statistical estimation below
+            except (RuntimeError, ValueError, TypeError) as err:
+                _ = err  # Fallback to statistical estimation below
 
         # Fallback backdoor linear regression estimation
         # Fit outcome ~ treatment + confounders (e.g. age)
@@ -107,7 +111,7 @@ class CausalInferenceEngine:
             weights, _, _, _ = np.linalg.lstsq(X_design, y, rcond=None)
             t_idx = X_cols.index(treatment) + 1
             ate_value = float(weights[t_idx])
-        except Exception:
+        except (RuntimeError, ValueError, TypeError, np.linalg.LinAlgError):
             # Default fallback estimate based on empirical literature
             default_ates = {
                 "blood_pressure": 0.012,
@@ -153,13 +157,17 @@ class CausalInferenceEngine:
                 available_treatments.append("cholesterol_mg_dl")
 
         if len(available_treatments) == 0:
-            available_treatments = [c for c in df.columns if c not in ["heart_disease", "diagnosis"]][:3]
+            available_treatments = [
+                c for c in df.columns if c not in ["heart_disease", "diagnosis"]
+            ][:3]
 
         outcome_col = "heart_disease" if "heart_disease" in df.columns else "diagnosis"
 
         insights = []
         for t in available_treatments:
-            effect_res = self.estimate_causal_effect(df, treatment=t, outcome=outcome_col)
+            effect_res = self.estimate_causal_effect(
+                df, treatment=t, outcome=outcome_col
+            )
             ate = effect_res["causal_effect_value"]
 
             if "blood_pressure" in t:
@@ -174,10 +182,12 @@ class CausalInferenceEngine:
             else:
                 impact_msg = f"A 1 unit change in {t} causes a {abs(round(ate * 100, 1))}% change in diagnostic risk."
 
-            insights.append({
-                "factor": t,
-                "impact": impact_msg,
-                "causal_effect_value": ate,
-            })
+            insights.append(
+                {
+                    "factor": t,
+                    "impact": impact_msg,
+                    "causal_effect_value": ate,
+                }
+            )
 
         return insights

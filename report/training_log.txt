@@ -1,0 +1,14 @@
+Baseline A (ECG Only) Test Accuracy: 0.8353
+Baseline B (Tabular Only) Test Accuracy: 0.7138
+Final Model (ECG+Tabular GAT) Test Accuracy: 0.8126
+Total training time: 1540.27s
+===========================================================
+COMPONENT BASELINES COMPARISON
+===========================================================
+Model              Accuracy    Precision    Recall    F1
+-----------------------------------------------------------
+ECG-only           0.8353      0.8910      0.8786    0.8848
+Tabular-only       0.7138      0.7468      0.9115    0.8210
+ECG+Tabular-GAT    0.8126      0.9528      0.7781    0.8566
+===========================================================
+

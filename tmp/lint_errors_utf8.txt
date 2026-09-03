@@ -1,0 +1,518 @@
+RUF059 Unpacked variable `lead_names` is never used
+   --> client\data\prepare_ptbxl.py:103:31
+    |
+101 |             # Load header content
+102 |             hea_content = z.read(hea_name).decode("utf-8")
+103 |             gains, baselines, lead_names, comments = parse_header_metadata(hea_content)
+    |                               ^^^^^^^^^^
+104 |
+105 |             # Load binary signal file
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+S110 `try`-`except`-`pass` detected, consider logging the exception
+  --> client\explainability\causal_graph.py:96:13
+   |
+94 |                       "engine": "DoWhy",
+95 |                   }
+96 | /             except Exception:
+97 | |                 pass  # Fallback to statistical estimation below
+   | |____________________^
+98 |
+99 |           # Fallback backdoor linear regression estimation
+   |
+
+BLE001 Do not catch blind exception: `Exception`
+  --> client\explainability\causal_graph.py:96:20
+   |
+94 |                     "engine": "DoWhy",
+95 |                 }
+96 |             except Exception:
+   |                    ^^^^^^^^^
+97 |                 pass  # Fallback to statistical estimation below
+   |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> client\explainability\causal_graph.py:114:16
+    |
+112 |             t_idx = X_cols.index(treatment) + 1
+113 |             ate_value = float(weights[t_idx])
+114 |         except Exception:
+    |                ^^^^^^^^^
+115 |             # Default fallback estimate based on empirical literature
+116 |             default_ates = {
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+  --> client\explainability\counterfactual.py:79:20
+   |
+77 |                 self.m = dice_ml.Model(model=model, backend="PYTORCH")
+78 |                 self.exp = dice_ml.Dice(self.d, self.m, method="random")
+79 |             except Exception:
+   |                    ^^^^^^^^^
+80 |                 self.exp = None
+   |
+
+S110 `try`-`except`-`pass` detected, consider logging the exception
+   --> client\explainability\counterfactual.py:169:13
+    |
+167 |                   if len(recommendations) > 0:
+168 |                       return recommendations
+169 | /             except Exception:
+170 | |                 pass  # Fallback to optimization search below
+    | |____________________^
+171 |
+172 |           # Fallback counterfactual search generator
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> client\explainability\counterfactual.py:169:20
+    |
+167 |                 if len(recommendations) > 0:
+168 |                     return recommendations
+169 |             except Exception:
+    |                    ^^^^^^^^^
+170 |                 pass  # Fallback to optimization search below
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> client\fl_client.py:319:12
+    |
+317 |             fraction=args.fraction,
+318 |         )
+319 |     except Exception as e:
+    |            ^^^^^^^^^
+320 |         print(f"Initialization failed: {e}")
+321 |         sys.exit(1)
+    |
+
+RUF059 Unpacked variable `batch_size` is never used
+  --> client\ml_models\gnn_fusion.py:65:9
+   |
+63 |         # Linear projection: (batch_size, num_nodes, out_features)
+64 |         g = self.W(h)
+65 |         batch_size, num_nodes, out_features = g.shape
+   |         ^^^^^^^^^^
+66 |
+67 |         # Calculate attention coefficients between all pairs of nodes (i, j)
+   |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF059 Unpacked variable `out_features` is never used
+  --> client\ml_models\gnn_fusion.py:65:32
+   |
+63 |         # Linear projection: (batch_size, num_nodes, out_features)
+64 |         g = self.W(h)
+65 |         batch_size, num_nodes, out_features = g.shape
+   |                                ^^^^^^^^^^^^
+66 |
+67 |         # Calculate attention coefficients between all pairs of nodes (i, j)
+   |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+BLE001 Do not catch blind exception: `Exception`
+  --> client\ml_models\text_model.py:66:20
+   |
+64 |                     for param in self.bert.parameters():
+65 |                         param.requires_grad = False
+66 |             except Exception as e:
+   |                    ^^^^^^^^^
+67 |                 print(
+68 |                     f"[BioClinicalBERT] Warning: Failed to load model weights ({e}). Using zero-filled fallback."
+   |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> client\ml_models\text_model.py:127:20
+    |
+125 |             try:
+126 |                 return AutoTokenizer.from_pretrained(pretrained_model)
+127 |             except Exception as e:
+    |                    ^^^^^^^^^
+128 |                 print(f"[BioClinicalBERT] Warning: Failed to load tokenizer: {e}")
+129 |                 return None
+    |
+
+RUF059 Unpacked variable `loss_ecg` is never used
+   --> client\train_multimodal.py:471:5
+    |
+469 |     # 3. Train Baseline A: ECG Only
+470 |     t_start = time.time()
+471 |     loss_ecg, acc_ecg, labels_ecg, preds_ecg, probs_ecg = train_and_eval(
+    |     ^^^^^^^^
+472 |         model=model_ecg,
+473 |         train_loader=train_loader,
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF059 Unpacked variable `acc_ecg` is never used
+   --> client\train_multimodal.py:471:15
+    |
+469 |     # 3. Train Baseline A: ECG Only
+470 |     t_start = time.time()
+471 |     loss_ecg, acc_ecg, labels_ecg, preds_ecg, probs_ecg = train_and_eval(
+    |               ^^^^^^^
+472 |         model=model_ecg,
+473 |         train_loader=train_loader,
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF059 Unpacked variable `loss_tab` is never used
+   --> client\train_multimodal.py:485:5
+    |
+484 |     # 4. Train Baseline B: Tabular Only
+485 |     loss_tab, acc_tab, labels_tab, preds_tab, probs_tab = train_and_eval(
+    |     ^^^^^^^^
+486 |         model=model_tabular,
+487 |         train_loader=train_loader,
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF059 Unpacked variable `acc_tab` is never used
+   --> client\train_multimodal.py:485:15
+    |
+484 |     # 4. Train Baseline B: Tabular Only
+485 |     loss_tab, acc_tab, labels_tab, preds_tab, probs_tab = train_and_eval(
+    |               ^^^^^^^
+486 |         model=model_tabular,
+487 |         train_loader=train_loader,
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF059 Unpacked variable `acc_gat` is never used
+   --> client\train_multimodal.py:501:15
+    |
+500 |     # 5. Train GAT Model
+501 |     loss_gat, acc_gat, labels_gat, preds_gat, probs_gat = train_and_eval(
+    |               ^^^^^^^
+502 |         model=model_gat,
+503 |         train_loader=train_loader,
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF059 Unpacked variable `d_label` is never used
+   --> client\train_multimodal.py:591:34
+    |
+589 |     model_gat.eval()
+590 |     diag_batch = next(iter(test_loader))
+591 |     d_ecg, d_ids, d_mask, d_tab, d_label = [x[:1].to(device) for x in diag_batch]
+    |                                  ^^^^^^^
+592 |     with torch.no_grad():
+593 |         _ = model_gat(
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+TRY203 Remove exception handler; error is immediately re-raised
+  --> server\app\core\security.py:64:5
+   |
+62 |           )
+63 |           return payload
+64 | /     except JWTError:
+65 | |         raise
+   | |_____________^
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\federation\router.py:26:15
+   |
+24 | )
+25 | async def fl_status(
+26 |     _: User = Depends(get_current_active_user),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+27 |     db: AsyncSession = Depends(get_db),
+28 | ):
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\federation\router.py:27:24
+   |
+25 | async def fl_status(
+26 |     _: User = Depends(get_current_active_user),
+27 |     db: AsyncSession = Depends(get_db),
+   |                        ^^^^^^^^^^^^^^^
+28 | ):
+29 |     return await get_fl_status(db)
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\federation\router.py:40:15
+   |
+38 | async def fl_start_round(
+39 |     body: FLStartRoundRequest,
+40 |     _: User = Depends(_require_super_admin),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+41 |     db: AsyncSession = Depends(get_db),
+42 | ):
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\federation\router.py:41:24
+   |
+39 |     body: FLStartRoundRequest,
+40 |     _: User = Depends(_require_super_admin),
+41 |     db: AsyncSession = Depends(get_db),
+   |                        ^^^^^^^^^^^^^^^
+42 | ):
+43 |     return await start_fl_round(db, body)
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\hospitals\repository.py:24:24
+   |
+23 | async def get_hospital_repository(
+24 |     db: AsyncSession = Depends(get_db),
+   |                        ^^^^^^^^^^^^^^^
+25 | ) -> HospitalRepository:
+26 |     """FastAPI dependency for injecting the HospitalRepository."""
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\hospitals\router.py:27:15
+   |
+25 | async def register_hospital(
+26 |     body: HospitalCreate,
+27 |     _: User = Depends(_require_super_admin),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+28 |     repo: HospitalRepository = Depends(get_hospital_repository),
+29 | ):
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\hospitals\router.py:28:32
+   |
+26 |     body: HospitalCreate,
+27 |     _: User = Depends(_require_super_admin),
+28 |     repo: HospitalRepository = Depends(get_hospital_repository),
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+29 | ):
+30 |     return await create_hospital(repo, body)
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\hospitals\router.py:41:15
+   |
+39 |     skip: int = 0,
+40 |     limit: int = 50,
+41 |     _: User = Depends(_require_super_admin),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+42 |     repo: HospitalRepository = Depends(get_hospital_repository),
+43 | ):
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\hospitals\router.py:42:32
+   |
+40 |     limit: int = 50,
+41 |     _: User = Depends(_require_super_admin),
+42 |     repo: HospitalRepository = Depends(get_hospital_repository),
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+43 | ):
+44 |     return await repo.get_all(skip=skip, limit=limit)
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\prediction\router.py:28:18
+   |
+26 | async def create_prediction(
+27 |     body: PredictionCreateSchema,
+28 |     user: User = Depends(get_current_active_user),
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+29 |     db: AsyncSession = Depends(get_db),
+30 | ):
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\prediction\router.py:29:24
+   |
+27 |     body: PredictionCreateSchema,
+28 |     user: User = Depends(get_current_active_user),
+29 |     db: AsyncSession = Depends(get_db),
+   |                        ^^^^^^^^^^^^^^^
+30 | ):
+31 |     return await process_prediction(db, body, user)
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\prediction\router.py:41:15
+   |
+39 | async def get_patient_history(
+40 |     patient_id: uuid.UUID,
+41 |     _: User = Depends(get_current_active_user),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+42 |     db: AsyncSession = Depends(get_db),
+43 | ):
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\prediction\router.py:42:24
+   |
+40 |     patient_id: uuid.UUID,
+41 |     _: User = Depends(get_current_active_user),
+42 |     db: AsyncSession = Depends(get_db),
+   |                        ^^^^^^^^^^^^^^^
+43 | ):
+44 |     repo = PredictionRepository(db)
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\auth_router.py:32:28
+   |
+30 | async def signup(
+31 |     body: UserCreate,
+32 |     repo: UserRepository = Depends(get_user_repository),
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+33 | ):
+34 |     try:
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\auth_router.py:53:39
+   |
+51 | )
+52 | async def login(
+53 |     form: OAuth2PasswordRequestForm = Depends(),
+   |                                       ^^^^^^^^^
+54 |     repo: UserRepository = Depends(get_user_repository),
+55 | ):
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\auth_router.py:54:28
+   |
+52 | async def login(
+53 |     form: OAuth2PasswordRequestForm = Depends(),
+54 |     repo: UserRepository = Depends(get_user_repository),
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+55 | ):
+56 |     user = await authenticate_user(repo, form.username, form.password)
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\auth_router.py:81:28
+   |
+79 | async def refresh(
+80 |     body: RefreshTokenRequest,
+81 |     repo: UserRepository = Depends(get_user_repository),
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+82 | ):
+83 |     credentials_exception = HTTPException(
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+   --> server\app\features\users\auth_router.py:116:27
+    |
+114 |     summary="Get current authenticated user profile",
+115 | )
+116 | async def me(user: User = Depends(get_current_active_user)):
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+117 |     return user
+    |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\dependencies.py:14:28
+   |
+13 | async def get_current_user(
+14 |     repo: UserRepository = Depends(get_user_repository),
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+15 |     token: str = Depends(oauth2_scheme),
+16 | ) -> User:
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\dependencies.py:48:18
+   |
+47 | async def get_current_active_user(
+48 |     user: User = Depends(get_current_user),
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+49 | ) -> User:
+50 |     """Wraps ``get_current_user`` and rejects inactive accounts."""
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\permissions.py:21:43
+   |
+19 |         self.allowed_roles = allowed_roles
+20 |
+21 |     async def __call__(self, user: User = Depends(get_current_active_user)) -> User:
+   |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+22 |         if user.role not in self.allowed_roles:
+23 |             raise HTTPException(
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\repository.py:24:24
+   |
+23 | async def get_user_repository(
+24 |     db: AsyncSession = Depends(get_db),
+   |                        ^^^^^^^^^^^^^^^
+25 | ) -> UserRepository:
+26 |     """FastAPI dependency â€” yields a ``UserRepository`` bound to the current session."""
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\router.py:31:19
+   |
+29 | async def create_user_as_admin(
+30 |     body: AdminUserCreate,
+31 |     actor: User = Depends(_require_admin),
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^
+32 |     repo: UserRepository = Depends(get_user_repository),
+33 | ):
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\router.py:32:28
+   |
+30 |     body: AdminUserCreate,
+31 |     actor: User = Depends(_require_admin),
+32 |     repo: UserRepository = Depends(get_user_repository),
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+33 | ):
+34 |     return await admin_create_user(repo, body, actor)
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\router.py:48:15
+   |
+46 |     skip: int = 0,
+47 |     limit: int = 50,
+48 |     _: User = Depends(RoleChecker([Role.SUPER_ADMIN])),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+49 |     repo: UserRepository = Depends(get_user_repository),
+50 | ):
+   |
+
+B008 Do not perform function call `RoleChecker` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\router.py:48:23
+   |
+46 |     skip: int = 0,
+47 |     limit: int = 50,
+48 |     _: User = Depends(RoleChecker([Role.SUPER_ADMIN])),
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+49 |     repo: UserRepository = Depends(get_user_repository),
+50 | ):
+   |
+
+B008 Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+  --> server\app\features\users\router.py:49:28
+   |
+47 |     limit: int = 50,
+48 |     _: User = Depends(RoleChecker([Role.SUPER_ADMIN])),
+49 |     repo: UserRepository = Depends(get_user_repository),
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+50 | ):
+51 |     return await repo.get_all(skip=skip, limit=limit)
+   |
+
+BLE001 Do not catch blind exception: `Exception`
+  --> server\seed.py:41:16
+   |
+39 |             await repo.create(admin)
+40 |             print("Successfully created the first super admin!")
+41 |         except Exception as e:
+   |                ^^^^^^^^^
+42 |             print(f"Error creating super admin: {e}")
+43 |             sys.exit(1)
+   |
+
+Found 47 errors.
+No fixes available (9 hidden fixes can be enabled with the `--unsafe-fixes` option).
+

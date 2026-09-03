@@ -3,7 +3,6 @@
 import argparse
 
 import flwr as fl
-
 from app.features.federation.strategy import get_fl_strategy
 
 

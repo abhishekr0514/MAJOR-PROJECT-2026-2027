@@ -7,8 +7,8 @@ import pytest
 torch = pytest.importorskip("torch", reason="PyTorch not installed in this environment")
 nn = torch.nn
 
-from client.explainability.causal_graph import CausalInferenceEngine  # noqa: E402
-from client.explainability.counterfactual import CounterfactualExplainer  # noqa: E402
+from client.explainability.causal_graph import CausalInferenceEngine
+from client.explainability.counterfactual import CounterfactualExplainer
 
 
 class MockDiagnosticModel(nn.Module):
@@ -68,16 +68,20 @@ def test_causal_inference_engine_estimate():
     """Test CausalInferenceEngine computes Average Treatment Effects (ATE)."""
     np.random.seed(42)
     n = 100
-    df = pd.DataFrame({
-        "age": np.random.randint(35, 80, size=n),
-        "blood_pressure_sys": np.random.randint(110, 180, size=n),
-        "cholesterol_mg_dl": np.random.uniform(150, 300, size=n),
-        "smoking": np.random.choice([0, 1], size=n),
-        "heart_disease": np.random.choice([0, 1], size=n),
-    })
+    df = pd.DataFrame(
+        {
+            "age": np.random.randint(35, 80, size=n),
+            "blood_pressure_sys": np.random.randint(110, 180, size=n),
+            "cholesterol_mg_dl": np.random.uniform(150, 300, size=n),
+            "smoking": np.random.choice([0, 1], size=n),
+            "heart_disease": np.random.choice([0, 1], size=n),
+        }
+    )
 
     engine = CausalInferenceEngine()
-    ate_result = engine.estimate_causal_effect(df, treatment="smoking", outcome="heart_disease")
+    ate_result = engine.estimate_causal_effect(
+        df, treatment="smoking", outcome="heart_disease"
+    )
 
     assert "causal_effect_value" in ate_result
     assert ate_result["treatment"] == "smoking"
@@ -88,13 +92,15 @@ def test_causal_inference_engine_insights():
     """Test CausalInferenceEngine generates human-readable causal insights."""
     np.random.seed(42)
     n = 50
-    df = pd.DataFrame({
-        "age": np.random.randint(35, 80, size=n),
-        "blood_pressure_sys": np.random.randint(110, 180, size=n),
-        "cholesterol_mg_dl": np.random.uniform(150, 300, size=n),
-        "smoking": np.random.choice([0, 1], size=n),
-        "heart_disease": np.random.choice([0, 1], size=n),
-    })
+    df = pd.DataFrame(
+        {
+            "age": np.random.randint(35, 80, size=n),
+            "blood_pressure_sys": np.random.randint(110, 180, size=n),
+            "cholesterol_mg_dl": np.random.uniform(150, 300, size=n),
+            "smoking": np.random.choice([0, 1], size=n),
+            "heart_disease": np.random.choice([0, 1], size=n),
+        }
+    )
 
     engine = CausalInferenceEngine()
     insights = engine.generate_causal_insights(df)

@@ -4,11 +4,14 @@ import pytest
 
 torch = pytest.importorskip("torch", reason="PyTorch not installed in this environment")
 
-from client.ml_models.full_model import MedShieldDiagnosticNet  # noqa: E402
-from client.ml_models.gnn_fusion import GNNMultimodalFusion  # noqa: E402
-from client.ml_models.lstm_model import ECGBiLSTM  # noqa: E402
-from client.ml_models.tabular_model import TabularEncoder  # noqa: E402
-from client.ml_models.text_model import BioClinicalBERTFeatureExtractor, ClinicalTextBERT  # noqa: E402
+from client.ml_models.full_model import MedShieldDiagnosticNet
+from client.ml_models.gnn_fusion import GNNMultimodalFusion
+from client.ml_models.lstm_model import ECGBiLSTM
+from client.ml_models.tabular_model import TabularEncoder
+from client.ml_models.text_model import (
+    BioClinicalBERTFeatureExtractor,
+    ClinicalTextBERT,
+)
 
 
 def test_ecg_bilstm_forward_shape():
@@ -28,7 +31,7 @@ def test_ecg_bilstm_single_sample_shape():
     model = ECGBiLSTM(in_channels=12, hidden_dim=64, embedding_dim=128)
     model.eval()
 
-    x = torch.randn(1, 12, 500)
+    x = torch.randn(1, 12, 1000)
     with torch.no_grad():
         out = model(x)
 
@@ -136,7 +139,9 @@ def test_bio_clinical_bert_projected_shape():
 
 def test_gnn_fusion_forward_shape():
     """Test GNNMultimodalFusion forward pass output logits and probabilities."""
-    fusion_model = GNNMultimodalFusion(ecg_dim=128, text_dim=128, tab_dim=64, num_classes=2)
+    fusion_model = GNNMultimodalFusion(
+        ecg_dim=128, text_dim=128, tab_dim=64, num_classes=2
+    )
     fusion_model.eval()
 
     ecg_emb = torch.randn(4, 128)
@@ -149,7 +154,9 @@ def test_gnn_fusion_forward_shape():
 
     assert logits.shape == (4, 2), f"Expected logits shape (4, 2), got {logits.shape}"
     assert proba.shape == (4, 2), f"Expected proba shape (4, 2), got {proba.shape}"
-    assert torch.allclose(proba.sum(dim=1), torch.ones(4)), "Probabilities must sum to 1.0"
+    assert torch.allclose(proba.sum(dim=1), torch.ones(4)), (
+        "Probabilities must sum to 1.0"
+    )
 
 
 def test_gnn_fusion_invalid_shapes():
@@ -172,9 +179,11 @@ def test_full_diagnostic_net_forward_pass():
     ecg = torch.randn(2, 12, 1000)
     input_ids = torch.randint(0, 1000, (2, 32))
     attn_mask = torch.ones(2, 32)
-    tab = torch.randn(2, 10)
+    tab = torch.randn(2, 2)
 
     with torch.no_grad():
         logits = model(ecg, input_ids, attn_mask, tab)
 
-    assert logits.shape == (2, 2), f"Expected binary logits shape (2, 2), got {logits.shape}"
+    assert logits.shape == (2, 2), (
+        f"Expected binary logits shape (2, 2), got {logits.shape}"
+    )

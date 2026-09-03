@@ -5,11 +5,13 @@ recommending specific clinical parameter target changes (e.g. reducing systolic 
 to transition heart disease diagnostic risk from High to Low.
 """
 
-from typing import Any, Callable
+from typing import Any
+
 import pandas as pd
 
 try:
     import torch
+
     TORCH_AVAILABLE = True
 except ImportError:
     torch = None  # type: ignore[assignment]
@@ -17,6 +19,7 @@ except ImportError:
 
 try:
     import dice_ml
+
     DICE_AVAILABLE = True
 except ImportError:
     dice_ml = None
@@ -73,7 +76,8 @@ class CounterfactualExplainer:
                 )
                 self.m = dice_ml.Model(model=model, backend="PYTORCH")
                 self.exp = dice_ml.Dice(self.d, self.m, method="random")
-            except Exception:
+            except (RuntimeError, ValueError, TypeError) as err:
+                _ = err
                 self.exp = None
 
     def _predict_risk(self, patient_dict: dict[str, float | int]) -> float:
@@ -96,7 +100,9 @@ class CounterfactualExplainer:
             if hasattr(self.model, "predict_proba"):
                 proba = self.model.predict_proba(input_tensor)
                 if hasattr(proba, "numpy"):
-                    proba_val = float(proba[0][1]) if proba.shape[1] > 1 else float(proba[0][0])
+                    proba_val = (
+                        float(proba[0][1]) if proba.shape[1] > 1 else float(proba[0][0])
+                    )
                 else:
                     proba_val = float(proba[0][1])
             else:
@@ -141,7 +147,9 @@ class CounterfactualExplainer:
                             orig_val = float(patient_features[col])
                             new_val = float(row[col])
                             if abs(orig_val - new_val) > 1e-2:
-                                target_changes[col] = f"Adjusted from {orig_val:.1f} to {new_val:.1f}"
+                                target_changes[col] = (
+                                    f"Adjusted from {orig_val:.1f} to {new_val:.1f}"
+                                )
                                 modified_vals[col] = round(new_val, 1)
 
                     rec = {
@@ -152,20 +160,26 @@ class CounterfactualExplainer:
                         "predicted_new_risk": round(
                             float(row.get("proba", max(0.15, current_risk - 0.4))), 2
                         ),
-                        "predicted_new_diagnosis": "Low Risk" if desired_class == 0 else "High Risk",
+                        "predicted_new_diagnosis": "Low Risk"
+                        if desired_class == 0
+                        else "High Risk",
                     }
                     recommendations.append(rec)
                 if len(recommendations) > 0:
                     return recommendations
-            except Exception:
-                pass  # Fallback to optimization search below
+            except (RuntimeError, ValueError, TypeError) as err:
+                _ = err  # Fallback to optimization search below
 
         # Fallback counterfactual search generator
         recommendations = []
         reduction_factors = [
             {"blood_pressure_sys": 0.85, "cholesterol_mg_dl": 0.80},
             {"cholesterol_mg_dl": 0.75, "fasting_bs_mg_dl": 0.85},
-            {"blood_pressure_sys": 0.80, "blood_pressure_dia": 0.85, "cholesterol_mg_dl": 0.85},
+            {
+                "blood_pressure_sys": 0.80,
+                "blood_pressure_dia": 0.85,
+                "cholesterol_mg_dl": 0.85,
+            },
         ]
 
         for idx in range(min(num_cfs, len(reduction_factors))):
@@ -181,7 +195,9 @@ class CounterfactualExplainer:
                     new_val = max(min_bound, round(orig_val * factor, 1))
 
                     if orig_val > new_val:
-                        target_changes[feature] = f"Reduced from {orig_val:.1f} to {new_val:.1f}"
+                        target_changes[feature] = (
+                            f"Reduced from {orig_val:.1f} to {new_val:.1f}"
+                        )
                         modified_vals[feature] = new_val
                         modified_patient[feature] = new_val
 
@@ -193,7 +209,9 @@ class CounterfactualExplainer:
                 "original_values": patient_features,
                 "modified_values": modified_vals,
                 "predicted_new_risk": new_risk,
-                "predicted_new_diagnosis": "Low Risk" if new_risk < 0.5 else "High Risk",
+                "predicted_new_diagnosis": "Low Risk"
+                if new_risk < 0.5
+                else "High Risk",
             }
             recommendations.append(rec)
 

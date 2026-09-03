@@ -1,0 +1,48 @@
+{
+    "random_seed": 42,
+    "pytorch_version": "2.11.0+cu128",
+    "cuda_version": "12.8",
+    "device": "cuda",
+    "gpu_name": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "dataset": "PTB-XL 100Hz 12-lead ECG",
+    "records": 21837,
+    "patients": 18878,
+    "train_patients": 15032,
+    "val_patients": 1942,
+    "test_patients": 1904,
+    "label_definition": "Class 0 = Sinus Rhythm only; Class 1 = Any other diagnostic code",
+    "train_class_distribution": {
+        "Class 0": 5212,
+        "Class 1": 12235
+    },
+    "val_class_distribution": {
+        "Class 0": 601,
+        "Class 1": 1582
+    },
+    "test_class_distribution": {
+        "Class 0": 616,
+        "Class 1": 1582
+    },
+    "normalization_method": "Per-lead train-only mean/std scaling",
+    "best_ecg_embedding_dim": 128,
+    "optimizer": "AdamW",
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "batch_size": 32,
+    "selection_metric": "val_auc",
+    "best_selected_model": "Exp 6 - GAT + Augmentation",
+    "best_epoch": 28,
+    "final_test_metrics": {
+        "accuracy": 0.7888989990900819,
+        "precision": 0.9721283783783784,
+        "sensitivity": 0.7275600505689002,
+        "specificity": 0.9464285714285714,
+        "f1_score": 0.8322487346348517,
+        "roc_auc": 0.9229593889043952,
+        "tn": 583,
+        "fp": 33,
+        "fn": 431,
+        "tp": 1151,
+        "test_loss": 0.40196258138807606
+    }
+}

@@ -1,0 +1,101 @@
+RUF059 Unpacked variable `lead_names` is never used
+   --> client\data\prepare_ptbxl.py:103:31
+    |
+101 |             # Load header content
+102 |             hea_content = z.read(hea_name).decode("utf-8")
+103 |             gains, baselines, lead_names, comments = parse_header_metadata(hea_content)
+    |                               ^^^^^^^^^^
+104 |
+105 |             # Load binary signal file
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+S110 `try`-`except`-`pass` detected, consider logging the exception
+  --> client\explainability\causal_graph.py:96:13
+   |
+94 |                       "engine": "DoWhy",
+95 |                   }
+96 | /             except Exception:
+97 | |                 pass  # Fallback to statistical estimation below
+   | |____________________^
+98 |
+99 |           # Fallback backdoor linear regression estimation
+   |
+
+BLE001 Do not catch blind exception: `Exception`
+  --> client\explainability\causal_graph.py:96:20
+   |
+94 |                     "engine": "DoWhy",
+95 |                 }
+96 |             except Exception:
+   |                    ^^^^^^^^^
+97 |                 pass  # Fallback to statistical estimation below
+   |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> client\explainability\causal_graph.py:114:16
+    |
+112 |             t_idx = X_cols.index(treatment) + 1
+113 |             ate_value = float(weights[t_idx])
+114 |         except Exception:
+    |                ^^^^^^^^^
+115 |             # Default fallback estimate based on empirical literature
+116 |             default_ates = {
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+  --> client\explainability\counterfactual.py:79:20
+   |
+77 |                 self.m = dice_ml.Model(model=model, backend="PYTORCH")
+78 |                 self.exp = dice_ml.Dice(self.d, self.m, method="random")
+79 |             except Exception:
+   |                    ^^^^^^^^^
+80 |                 self.exp = None
+   |
+
+S110 `try`-`except`-`pass` detected, consider logging the exception
+   --> client\explainability\counterfactual.py:169:13
+    |
+167 |                   if len(recommendations) > 0:
+168 |                       return recommendations
+169 | /             except Exception:
+170 | |                 pass  # Fallback to optimization search below
+    | |____________________^
+171 |
+172 |           # Fallback counterfactual search generator
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> client\explainability\counterfactual.py:169:20
+    |
+167 |                 if len(recommendations) > 0:
+168 |                     return recommendations
+169 |             except Exception:
+    |                    ^^^^^^^^^
+170 |                 pass  # Fallback to optimization search below
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+  --> client\ml_models\text_model.py:66:20
+   |
+64 |                     for param in self.bert.parameters():
+65 |                         param.requires_grad = False
+66 |             except Exception as e:
+   |                    ^^^^^^^^^
+67 |                 print(
+68 |                     f"[BioClinicalBERT] Warning: Failed to load model weights ({e}). Using zero-filled fallback."
+   |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> client\ml_models\text_model.py:127:20
+    |
+125 |             try:
+126 |                 return AutoTokenizer.from_pretrained(pretrained_model)
+127 |             except Exception as e:
+    |                    ^^^^^^^^^
+128 |                 print(f"[BioClinicalBERT] Warning: Failed to load tokenizer: {e}")
+129 |                 return None
+    |
+
+Found 9 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

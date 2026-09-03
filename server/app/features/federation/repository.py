@@ -1,10 +1,9 @@
 """Repository layer for Federated Learning rounds persistence."""
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.base_repository import BaseRepository
 from app.features.federation.models import FLRound
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class FLRoundRepository(BaseRepository[FLRound]):

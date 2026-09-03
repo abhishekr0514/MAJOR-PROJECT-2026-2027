@@ -1,0 +1,18 @@
+====================================================
+PTB-XL DATASET AUDIT REPORT
+====================================================
+Dataset: PTB-XL ECG Dataset
+Source: PhysioNet (WFDB format)
+Records: 21837
+Unique patients: 18878
+Sampling frequency: 100 Hz (Downsampled from 500 Hz)
+Duration: 10 seconds
+Leads: 12
+Samples per record: 1000
+Class 0 (Normal) count: 6432
+Class 1 (Abnormal) count: 15405
+Train fold records: 17456
+Val fold records: 2183
+Test fold records: 2198
+Official folds available: YES
+Clinical notes: NO (Simulated separately in decoupled demo)

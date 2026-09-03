@@ -2,10 +2,8 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, status
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.database import get_db
+from app.features.patients.repository import PatientRepository
 from app.features.prediction.repository import PredictionRepository
 from app.features.prediction.schema import (
     PredictionCreateSchema,
@@ -14,6 +12,8 @@ from app.features.prediction.schema import (
 from app.features.prediction.service import process_prediction
 from app.features.users.dependencies import get_current_active_user
 from app.features.users.models import User
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 prediction_router = APIRouter()
 
@@ -26,8 +26,8 @@ prediction_router = APIRouter()
 )
 async def create_prediction(
     body: PredictionCreateSchema,
-    user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_active_user),  # noqa: B008
+    db: AsyncSession = Depends(get_db),  # noqa: B008
 ):
     return await process_prediction(db, body, user)
 
@@ -38,16 +38,26 @@ async def create_prediction(
     summary="Get prediction history for a patient",
 )
 async def get_patient_history(
-    patient_id: uuid.UUID,
-    _: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
+    patient_id: str,
+    _: User = Depends(get_current_active_user),  # noqa: B008
+    db: AsyncSession = Depends(get_db),  # noqa: B008
 ):
     repo = PredictionRepository(db)
-    history = await repo.get_history_by_patient(patient_id)
+    # Check if patient_id is a valid UUID, otherwise query by patient_code
+    try:
+        val_uuid = uuid.UUID(patient_id)
+        history = await repo.get_history_by_patient(val_uuid)
+    except ValueError:
+        patient_repo = PatientRepository(db)
+        patient = await patient_repo.get_one_by(patient_code=patient_id)
+        if not patient:
+            return []
+        history = await repo.get_history_by_patient(patient.id)
+
     return [
         PredictionResponseSchema(
             id=item.id,
-            patient_code=str(item.patient_id),
+            patient_code=patient_id,
             risk_score=item.risk_score,
             diagnosis=item.diagnosis,
             counterfactual_recommendations=item.xai_counterfactuals,

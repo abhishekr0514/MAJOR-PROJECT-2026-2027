@@ -2,8 +2,6 @@
 
 import uuid
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.features.patients.models import Patient
 from app.features.patients.repository import PatientRepository
 from app.features.prediction.models import Prediction
@@ -13,6 +11,7 @@ from app.features.prediction.schema import (
     PredictionResponseSchema,
 )
 from app.features.users.models import User
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def process_prediction(

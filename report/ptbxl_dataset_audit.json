@@ -1,0 +1,18 @@
+{
+    "dataset_name": "PTB-XL ECG Dataset",
+    "total_records": 21837,
+    "total_patients": 18878,
+    "train_records": 17447,
+    "train_patients": 15032,
+    "train_class_0": 5212,
+    "train_class_1": 12235,
+    "val_records": 2183,
+    "val_patients": 1942,
+    "val_class_0": 601,
+    "val_class_1": 1582,
+    "test_records": 2198,
+    "test_patients": 1904,
+    "test_class_0": 616,
+    "test_class_1": 1582,
+    "patient_leakage": "ZERO"
+}

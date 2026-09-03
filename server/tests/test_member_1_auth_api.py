@@ -1,13 +1,12 @@
 """Integration tests for Member 1 backend API endpoints and FL orchestration."""
 
 import pytest
-from httpx import ASGITransport, AsyncClient
-
 from app.app import app
 from app.core.database import SessionLocal
 from app.core.security import hash_password
 from app.features.hospitals.models import Hospital
 from app.features.users.models import Role, User
+from httpx import ASGITransport, AsyncClient
 
 
 @pytest.mark.asyncio

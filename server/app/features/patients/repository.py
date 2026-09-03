@@ -1,9 +1,8 @@
 """Repository layer for Patient entity persistence."""
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.base_repository import BaseRepository
 from app.features.patients.models import Patient
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class PatientRepository(BaseRepository[Patient]):
